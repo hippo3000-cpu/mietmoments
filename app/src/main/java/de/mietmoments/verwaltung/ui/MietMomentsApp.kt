@@ -2,7 +2,15 @@ package de.mietmoments.verwaltung.ui
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,12 +24,12 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -73,73 +81,100 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
     val backEntry by nav.currentBackStackEntryAsState()
     val current = backEntry?.destination?.route.orEmpty()
     val context = LocalContext.current
-    val spin by animateFloatAsState(if (state.syncing && state.settings.animationsEnabled) 360f else 0f, label = "sync-spin")
     val topLevel = Route.entries.any { it.value == current }
+    val infinite = rememberInfiniteTransition(label = "sync")
+    val spin by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = if (state.syncing && state.settings.animationsEnabled) 360f else 0f,
+        animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing)),
+        label = "sync-spin"
+    )
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        when (current) {
+                    AnimatedContent(
+                        targetState = when (current) {
                             "settings" -> "Einstellungen"
                             "customer" -> "Kundendetails"
+                            "week" -> "Wochenplan"
+                            "customers" -> "Kunden"
+                            "items" -> "Artikel"
+                            "locations" -> "Locations"
                             else -> "MietMoments"
                         },
-                        fontWeight = FontWeight.Black
-                    )
+                        transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(120)) },
+                        label = "title"
+                    ) { title ->
+                        Text(title, fontWeight = FontWeight.Black)
+                    }
                 },
                 actions = {
                     IconButton(onClick = viewModel::sync, enabled = !state.syncing) {
                         if (state.syncing && !state.settings.animationsEnabled) CircularProgressIndicator()
                         else Icon(Icons.Rounded.Refresh, "Synchronisieren", Modifier.rotate(spin))
                     }
-                    IconButton(onClick = { nav.navigate("settings") }) { Icon(Icons.Rounded.Settings, "Einstellungen") }
+                    IconButton(onClick = { nav.navigate("settings") }) {
+                        Icon(Icons.Rounded.Settings, "Einstellungen")
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.primary
                 )
             )
         },
         bottomBar = {
-            if (topLevel) BottomAppBar {
-                Route.entries.forEach { route ->
-                    NavigationBarItem(
-                        selected = current == route.value,
-                        onClick = {
-                            nav.navigate(route.value) {
-                                popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            val icon = when (route) {
-                                Route.Home -> Icons.Rounded.Home
-                                Route.Week -> Icons.Rounded.CalendarMonth
-                                Route.Customers -> Icons.Rounded.People
-                                Route.Items -> Icons.Rounded.Inventory2
-                                Route.Locations -> Icons.Rounded.Place
-                            }
-                            BadgedBox(badge = {
-                                if (route == Route.Week && state.snapshot?.events.orEmpty().isNotEmpty()) Badge { Text(state.snapshot?.events?.size.toString()) }
-                            }) { Icon(icon, route.label) }
-                        },
-                        label = { Text(route.label) }
-                    )
+            if (topLevel) {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                    Route.entries.forEach { route ->
+                        NavigationBarItem(
+                            selected = current == route.value,
+                            onClick = {
+                                nav.navigate(route.value) {
+                                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = {
+                                val icon = when (route) {
+                                    Route.Home -> Icons.Rounded.Home
+                                    Route.Week -> Icons.Rounded.CalendarMonth
+                                    Route.Customers -> Icons.Rounded.People
+                                    Route.Items -> Icons.Rounded.Inventory2
+                                    Route.Locations -> Icons.Rounded.Place
+                                }
+                                BadgedBox(badge = {
+                                    if (route == Route.Week && state.snapshot?.events.orEmpty().isNotEmpty()) {
+                                        Badge { Text(state.snapshot?.events?.size.toString()) }
+                                    }
+                                }) { Icon(icon, route.label) }
+                            },
+                            label = { Text(route.label) }
+                        )
+                    }
                 }
             }
         }
     ) { padding ->
-        NavHost(navController = nav, startDestination = Route.Home.value, modifier = Modifier.padding(padding)) {
+        NavHost(
+            navController = nav,
+            startDestination = Route.Home.value,
+            modifier = Modifier.padding(padding)
+        ) {
             composable(Route.Home.value) {
                 DashboardScreen(
                     snapshot = state.snapshot,
                     online = state.online,
                     momoEnabled = state.settings.momoEnabled,
                     animations = state.settings.animationsEnabled,
+                    syncing = state.syncing,
+                    onSync = viewModel::sync,
                     onOpenWeek = { nav.navigate(Route.Week.value) },
                     onOpenCustomers = { nav.navigate(Route.Customers.value) },
                     onOpenItems = { nav.navigate(Route.Items.value) },
@@ -167,7 +202,9 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                 }
             }
             composable(Route.Items.value) { ItemsScreen(state.snapshot?.items.orEmpty()) }
-            composable(Route.Locations.value) { LocationsScreen(state.snapshot?.locations.orEmpty()) { openNavigation(context, it) } }
+            composable(Route.Locations.value) {
+                LocationsScreen(state.snapshot?.locations.orEmpty()) { openNavigation(context, it) }
+            }
             composable("customer") {
                 CustomerDetailScreen(
                     detail = state.customerDetail,
@@ -186,14 +223,15 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
 
 @Composable
 private fun Splash() {
-    Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) { CircularProgressIndicator() }
+    Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+        CircularProgressIndicator()
+    }
 }
 
 private fun openNavigation(context: android.content.Context, address: String) {
     if (address.isBlank()) return
     val geo = Uri.parse("geo:0,0?q=${Uri.encode(address)}")
-    val intent = Intent(Intent.ACTION_VIEW, geo)
-    runCatching { context.startActivity(intent) }
+    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, geo)) }
 }
 
 private fun openUri(context: android.content.Context, uri: String) {
