@@ -1,0 +1,34 @@
+name: Bootstrap native v2
+
+on:
+  push:
+    branches: [ feature/native-compose-v2 ]
+
+permissions:
+  contents: write
+
+jobs:
+  expand-source:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/native-compose-v2
+          fetch-depth: 0
+      - name: Expand prepared source tree
+        shell: bash
+        run: |
+          test -f bootstrap_source.b64 || exit 0
+          base64 -d bootstrap_source.b64 > /tmp/mietmoments-v2.zip
+          unzip -o /tmp/mietmoments-v2.zip -d .
+          rm -f bootstrap_source.b64 .github/workflows/bootstrap.yml
+      - name: Commit native project
+        shell: bash
+        run: |
+          if git diff --quiet && [ -z "$(git status --porcelain)" ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: bootstrap native Compose v2"
+          git push origin HEAD:feature/native-compose-v2
