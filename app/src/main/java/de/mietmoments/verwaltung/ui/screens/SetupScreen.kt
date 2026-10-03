@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import de.mietmoments.verwaltung.data.AppSettings
-import de.mietmoments.verwaltung.ui.components.MomoMascot
 
 @Composable
 fun SetupScreen(
@@ -61,13 +60,6 @@ fun SetupScreen(
         Text("MietMoments", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Black)
         Text("Einmal koppeln. Danach einfach benutzen.", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(18.dp))
-
-        if (momo) {
-            MomoMascot(
-                "Hol dir in der Verwaltung einen Kopplungscode. Ich kümmere mich um den langen Technik-Kram.",
-                animated = animations
-            )
-        }
 
         Spacer(Modifier.height(18.dp))
 
@@ -110,7 +102,7 @@ fun SetupScreen(
                     supportingText = { Text("Kein App-Schlüssel mehr nötig.") }
                 )
 
-                PreferenceRow("Momo anzeigen", "Maskottchen, Hinweise und kleine Sprüche", momo) { momo = it }
+                PreferenceRow("Milo anzeigen", "Kleines Baby-Nilpferd als Begleiter", momo) { momo = it }
                 PreferenceRow("Animationen", "Bewegungen und Übergänge in der App", animations) { animations = it }
 
                 AnimatedVisibility(message.isNotBlank()) {
