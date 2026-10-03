@@ -2,7 +2,7 @@
 
 Native Android-App für die MietMoments-Verwaltung.
 
-## MietMoments 2.0.0 · Elegant Magic + Milo
+## MietMoments 2.2.0 · Pink Milo 3D + Elegant Magic
 
 Die App ist eine echte native Android-App mit **Kotlin + Jetpack Compose + Material 3** und bleibt bewusst getrennt von der Partnervermietungs-/Erich-App.
 
@@ -25,7 +25,7 @@ Die App ist eine echte native Android-App mit **Kotlin + Jetpack Compose + Mater
 - Animationen können in den Einstellungen deaktiviert werden
 
 ### Milo
-**Milo** ist ein kleines Baby-Nilpferd im Tamagotchi-Stil. Er ist kein festes Textmodul, sondern bewegt sich dezent frei über die App. Je nach Zustand läuft, hüpft, springt, schläft, grinst oder schaut er traurig bzw. neugierig. Gelegentlich erscheint für kurze Zeit eine kleine Sprechblase. Milo reagiert unter anderem auf Synchronisierung, Offline-Zustand und volle Wochen.
+**Milo** ist ein kleines rosa 3D-Baby-Nilpferd im glossy Tamagotchi-Stil. Die freigegebene Milo-Grafik ist direkt Bestandteil der App. Milo bewegt sich dezent frei über die Oberfläche, läuft, hüpft, federt, schläft und reagiert mit kleinen Bewegungen auf Synchronisierung, Offline-Zustand und volle Wochen. Gelegentlich erscheint kurz eine kleine Sprechblase.
 
 Milo kann in den Einstellungen komplett deaktiviert werden.
 
