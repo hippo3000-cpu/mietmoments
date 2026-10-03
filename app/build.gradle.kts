@@ -13,8 +13,8 @@ android {
         applicationId = "de.mietmoments.verwaltung"
         minSdk = 26
         targetSdk = 36
-        versionCode = 200
-        versionName = "2.0.0-alpha01"
+        versionCode = 201
+        versionName = "2.0.0-alpha02"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -63,6 +63,8 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.animation:animation")
+    implementation("androidx.compose.animation:animation-graphics")
+    implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
 
