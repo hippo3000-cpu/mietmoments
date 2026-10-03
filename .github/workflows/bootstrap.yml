@@ -23,7 +23,7 @@ jobs:
           [ -e "${parts[0]}" ] || exit 0
           cat bootstrap_source.part* | base64 -d > /tmp/mietmoments-v2.zip
           unzip -o /tmp/mietmoments-v2.zip -d .
-          rm -f bootstrap_source.part* .github/workflows/bootstrap.yml
+          rm -f bootstrap_source.part* .github/workflows/android.yml
       - name: Commit native project
         shell: bash
         run: |
