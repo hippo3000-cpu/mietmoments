@@ -35,3 +35,13 @@ jobs:
           name: MietMoments-modern-momo-release-unsigned
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
+      - name: Prepare Android signing tool
+        run: |
+          mkdir -p signing-tool
+          BT="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
+          cp "$BT/lib/apksigner.jar" signing-tool/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apksigner-tool
+          path: signing-tool/apksigner.jar
+          if-no-files-found: error
