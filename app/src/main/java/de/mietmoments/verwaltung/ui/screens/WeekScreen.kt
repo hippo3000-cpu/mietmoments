@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.mietmoments.verwaltung.data.EventDto
-import de.mietmoments.verwaltung.ui.components.MomoMascot
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -71,26 +70,9 @@ fun WeekScreen(
             )
         }
 
-        if (momoEnabled && events.size >= 6) {
-            item {
-                MomoMascot(
-                    "Volle Woche. Ich empfehle: erst Kaffee, dann Kabel, dann Menschen.",
-                    animated = animations,
-                    compact = true
-                )
-            }
-        }
-
         if (events.isEmpty()) {
             item {
-                if (momoEnabled) {
-                    MomoMascot(
-                        "Nichts geplant. Ich werte das als offiziell genehmigte Kabelbinder-Pause.",
-                        animated = animations
-                    )
-                } else {
-                    Text("Keine Termine in dieser Woche.", Modifier.padding(12.dp))
-                }
+                Text("Keine Termine in dieser Woche.", Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
