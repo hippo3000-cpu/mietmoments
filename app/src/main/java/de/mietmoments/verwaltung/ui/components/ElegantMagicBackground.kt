@@ -30,17 +30,20 @@ fun ElegantMagicBackground(
     val phase by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(5200, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(6200, easing = LinearEasing)),
         label = "magic-sparkle"
     )
+
     val sparkles = remember {
         listOf(
-            Triple(.08f, .12f, 2.2f), Triple(.20f, .26f, 1.5f), Triple(.34f, .09f, 1.8f),
-            Triple(.48f, .20f, 2.4f), Triple(.66f, .11f, 1.5f), Triple(.82f, .25f, 2.0f),
-            Triple(.92f, .08f, 1.2f), Triple(.12f, .48f, 1.4f), Triple(.28f, .62f, 2.1f),
-            Triple(.55f, .51f, 1.3f), Triple(.73f, .66f, 1.8f), Triple(.90f, .53f, 2.3f),
-            Triple(.06f, .84f, 1.8f), Triple(.22f, .92f, 1.2f), Triple(.43f, .80f, 2.2f),
-            Triple(.61f, .91f, 1.5f), Triple(.78f, .83f, 2.0f), Triple(.95f, .94f, 1.3f)
+            Triple(.06f, .10f, 1.7f), Triple(.15f, .22f, 1.0f), Triple(.27f, .08f, 1.4f),
+            Triple(.39f, .18f, 1.8f), Triple(.52f, .08f, 1.1f), Triple(.64f, .21f, 1.6f),
+            Triple(.77f, .12f, 1.2f), Triple(.90f, .25f, 1.7f), Triple(.96f, .08f, .9f),
+            Triple(.09f, .42f, 1.0f), Triple(.23f, .55f, 1.6f), Triple(.36f, .40f, .9f),
+            Triple(.49f, .58f, 1.3f), Triple(.62f, .45f, 1.0f), Triple(.75f, .59f, 1.5f),
+            Triple(.90f, .47f, 1.1f), Triple(.05f, .78f, 1.4f), Triple(.18f, .91f, .9f),
+            Triple(.31f, .81f, 1.7f), Triple(.46f, .93f, 1.1f), Triple(.59f, .79f, 1.3f),
+            Triple(.72f, .91f, .9f), Triple(.84f, .80f, 1.6f), Triple(.95f, .93f, 1.0f)
         )
     }
 
@@ -50,10 +53,10 @@ fun ElegantMagicBackground(
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xFFFFFEFB),
-                        Color(0xFFFFF9ED),
-                        Color(0xFFFDF4E6),
-                        Color(0xFFFFFCF6)
+                        Color(0xFFFFFEFC),
+                        Color(0xFFFFFAF1),
+                        Color(0xFFFFF5E8),
+                        Color(0xFFFFFCF7)
                     )
                 )
             )
@@ -61,28 +64,53 @@ fun ElegantMagicBackground(
         Canvas(Modifier.fillMaxSize()) {
             drawRect(
                 brush = Brush.radialGradient(
-                    colors = listOf(Color(0x55FFF0C7), Color.Transparent),
-                    center = Offset(size.width * .18f, size.height * .13f),
-                    radius = size.minDimension * .72f
+                    colors = listOf(Color(0x66FFF0C9), Color.Transparent),
+                    center = Offset(size.width * .17f, size.height * .12f),
+                    radius = size.minDimension * .76f
                 )
             )
             drawRect(
                 brush = Brush.radialGradient(
-                    colors = listOf(Color(0x44F7DDB0), Color.Transparent),
-                    center = Offset(size.width * .87f, size.height * .72f),
-                    radius = size.minDimension * .62f
+                    colors = listOf(Color(0x48F6D9AD), Color.Transparent),
+                    center = Offset(size.width * .88f, size.height * .72f),
+                    radius = size.minDimension * .66f
+                )
+            )
+            drawRect(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color(0x24FFFDF7), Color.Transparent),
+                    center = Offset(size.width * .52f, size.height * .42f),
+                    radius = size.minDimension * .44f
                 )
             )
 
             sparkles.forEachIndexed { index, sparkle ->
                 val pulse = if (animationsEnabled) {
-                    ((sin((phase * 2f * PI + index * .83).toDouble()) + 1.0) / 2.0).toFloat()
-                } else .45f
-                val alpha = .10f + pulse * .34f
-                val radius = sparkle.third * density * (.72f + pulse * .35f)
+                    ((sin((phase * 2f * PI + index * .67).toDouble()) + 1.0) / 2.0).toFloat()
+                } else .42f
+
+                val alpha = .07f + pulse * .28f
+                val base = sparkle.third * density
                 val center = Offset(size.width * sparkle.first, size.height * sparkle.second)
-                drawCircle(Color.White.copy(alpha = alpha), radius = radius * 2.4f, center = center)
-                drawCircle(Color(0xFFFFD98D).copy(alpha = alpha * .85f), radius = radius, center = center)
+
+                drawCircle(Color.White.copy(alpha = alpha * .95f), radius = base * 2.1f, center = center)
+                drawCircle(Color(0xFFFFDDA0).copy(alpha = alpha), radius = base * .72f, center = center)
+
+                if (index % 4 == 0) {
+                    val arm = base * (2.7f + pulse * .8f)
+                    drawLine(
+                        color = Color.White.copy(alpha = alpha * .9f),
+                        start = Offset(center.x - arm, center.y),
+                        end = Offset(center.x + arm, center.y),
+                        strokeWidth = .7f * density
+                    )
+                    drawLine(
+                        color = Color.White.copy(alpha = alpha * .9f),
+                        start = Offset(center.x, center.y - arm),
+                        end = Offset(center.x, center.y + arm),
+                        strokeWidth = .7f * density
+                    )
+                }
             }
         }
 
