@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,12 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlin.math.PI
@@ -59,20 +60,20 @@ fun MiloCompanion(
     if (!enabled) return
 
     BoxWithConstraints(modifier.fillMaxSize()) {
-        var targetX by remember { mutableStateOf(16.dp) }
-        var targetY by remember { mutableStateOf(110.dp) }
+        var targetX by remember { mutableStateOf(14.dp) }
+        var targetY by remember { mutableStateOf(112.dp) }
         var facingRight by remember { mutableStateOf(true) }
         var mood by remember { mutableStateOf(MiloMood.IDLE) }
         var bubble by remember { mutableStateOf<String?>(null) }
 
         val x by animateDpAsState(
             targetValue = targetX,
-            animationSpec = tween(if (animationsEnabled) 1900 else 1, easing = LinearEasing),
+            animationSpec = tween(if (animationsEnabled) 1850 else 1, easing = LinearEasing),
             label = "milo-x"
         )
         val y by animateDpAsState(
             targetValue = targetY,
-            animationSpec = tween(if (animationsEnabled) 1500 else 1),
+            animationSpec = tween(if (animationsEnabled) 1450 else 1),
             label = "milo-y"
         )
 
@@ -80,22 +81,27 @@ fun MiloCompanion(
         val phase by transition.animateFloat(
             initialValue = 0f,
             targetValue = 1f,
-            animationSpec = infiniteRepeatable(tween(900, easing = LinearEasing)),
+            animationSpec = infiniteRepeatable(tween(860, easing = LinearEasing)),
             label = "milo-phase"
         )
 
-        val localBounce = if (!animationsEnabled) 0f else when (mood) {
-            MiloMood.HOP -> -abs(sin(phase * PI)).toFloat() * 12f
-            MiloMood.WALK -> -abs(sin(phase * 2f * PI)).toFloat() * 2.6f
-            MiloMood.HAPPY -> -abs(sin(phase * 2f * PI)).toFloat() * 4.5f
-            MiloMood.BUSY -> -abs(sin(phase * 3f * PI)).toFloat() * 2f
-            else -> -abs(sin(phase * 2f * PI)).toFloat() * .8f
+        val bounce = if (!animationsEnabled) 0f else when (mood) {
+            MiloMood.HOP -> -abs(sin(phase * PI)).toFloat() * 11f
+            MiloMood.WALK -> -abs(sin(phase * 2f * PI)).toFloat() * 2.2f
+            MiloMood.HAPPY -> -abs(sin(phase * 2f * PI)).toFloat() * 4.2f
+            MiloMood.BUSY -> -abs(sin(phase * 3f * PI)).toFloat() * 1.8f
+            else -> -abs(sin(phase * 2f * PI)).toFloat() * .65f
         }
-        val localTilt = if (!animationsEnabled) 0f else when (mood) {
-            MiloMood.WALK -> sin(phase * 2f * PI).toFloat() * 4f
-            MiloMood.CURIOUS -> 6f
-            MiloMood.SAD -> -3f
-            else -> sin(phase * 2f * PI).toFloat() * 1.4f
+        val tilt = if (!animationsEnabled) 0f else when (mood) {
+            MiloMood.WALK -> sin(phase * 2f * PI).toFloat() * 3.8f
+            MiloMood.CURIOUS -> 7f
+            MiloMood.SAD -> -4f
+            else -> sin(phase * 2f * PI).toFloat() * 1.2f
+        }
+        val squashY = if (!animationsEnabled) 1f else when (mood) {
+            MiloMood.HOP -> .94f + abs(sin(phase * PI)).toFloat() * .08f
+            MiloMood.SLEEP -> .94f
+            else -> 1f
         }
 
         fun commentFor(current: MiloMood): String = when {
@@ -103,29 +109,34 @@ fun MiloCompanion(
             !online -> listOf("Huch?", "Kein Netz …", "Ich warte.").random()
             current == MiloMood.SLEEP -> listOf("Zzz …", "Kurz Pause.").random()
             current == MiloMood.HOP -> listOf("Juhu!", "Hopp! ✨").random()
-            current == MiloMood.HAPPY -> listOf("Läuft!", "Alles gut ♥", "Sehr schön!").random()
+            current == MiloMood.HAPPY -> listOf("Läuft!", "Sehr schön!", "Hihi!").random()
             eventCount >= 7 -> listOf("Viel los!", "Volle Woche!").random()
             else -> listOf("Na du?", "Alles im Blick.", "Los geht's ✨", "Hihi!").random()
         }
 
         LaunchedEffect(maxWidth, maxHeight, online, syncing, eventCount, animationsEnabled) {
-            delay(700)
+            delay(900)
             while (isActive) {
                 val nextMood = when {
                     syncing -> MiloMood.BUSY
                     !online -> MiloMood.SAD
                     else -> listOf(
-                        MiloMood.IDLE, MiloMood.WALK, MiloMood.WALK, MiloMood.HOP,
-                        MiloMood.HAPPY, MiloMood.CURIOUS, MiloMood.SLEEP
+                        MiloMood.IDLE,
+                        MiloMood.WALK,
+                        MiloMood.WALK,
+                        MiloMood.HOP,
+                        MiloMood.HAPPY,
+                        MiloMood.CURIOUS,
+                        MiloMood.SLEEP
                     ).random()
                 }
                 mood = nextMood
 
                 if (animationsEnabled && nextMood != MiloMood.SLEEP) {
                     val minX = 8f
-                    val maxX = (maxWidth.value - 70f).coerceAtLeast(minX)
+                    val maxX = (maxWidth.value - 62f).coerceAtLeast(minX)
                     val minY = 76f
-                    val maxY = (maxHeight.value - 145f).coerceAtLeast(minY)
+                    val maxY = (maxHeight.value - 132f).coerceAtLeast(minY)
                     val newX = if (maxX > minX) Random.nextDouble(minX.toDouble(), maxX.toDouble()).toFloat() else minX
                     val newY = if (maxY > minY) Random.nextDouble(minY.toDouble(), maxY.toDouble()).toFloat() else minY
                     facingRight = newX >= targetX.value
@@ -133,18 +144,19 @@ fun MiloCompanion(
                     targetY = newY.dp
                 }
 
-                if (syncing || !online || Random.nextInt(100) < 34) {
+                val shouldComment = syncing || !online || Random.nextInt(100) < 15
+                if (shouldComment) {
                     bubble = commentFor(nextMood)
-                    delay(1800)
+                    delay(1550)
                     bubble = null
                 }
 
                 delay(
                     when (nextMood) {
-                        MiloMood.SLEEP -> 4200L
-                        MiloMood.WALK -> 2100L
-                        MiloMood.HOP -> 1500L
-                        else -> 2500L
+                        MiloMood.SLEEP -> 5200L
+                        MiloMood.WALK -> 2600L
+                        MiloMood.HOP -> 1800L
+                        else -> Random.nextLong(2600L, 4300L)
                     }
                 )
             }
@@ -153,8 +165,8 @@ fun MiloCompanion(
         Column(
             modifier = Modifier
                 .zIndex(50f)
-                .offset(x = x, y = y + localBounce.dp)
-                .widthIn(max = 128.dp)
+                .offset(x = x, y = y + bounce.dp)
+                .widthIn(max = 112.dp)
                 .clickable {
                     mood = MiloMood.HAPPY
                     bubble = "Hihi! ♥"
@@ -163,18 +175,20 @@ fun MiloCompanion(
         ) {
             AnimatedVisibility(
                 visible = bubble != null,
-                enter = fadeIn(tween(120)) + scaleIn(initialScale = .85f),
+                enter = fadeIn(tween(120)) + scaleIn(initialScale = .86f),
                 exit = fadeOut(tween(160))
             ) {
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = .95f),
-                    shadowElevation = 4.dp
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = .96f),
+                    shadowElevation = 3.dp
                 ) {
                     Text(
                         text = bubble.orEmpty(),
-                        modifier = Modifier.widthIn(max = 118.dp),
-                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier
+                            .widthIn(max = 104.dp)
+                            .padding(horizontal = 8.dp, vertical = 5.dp),
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -183,9 +197,12 @@ fun MiloCompanion(
             MiloFigure(
                 mood = mood,
                 modifier = Modifier
-                    .size(58.dp)
-                    .rotate(localTilt)
-                    .scale(scaleX = if (facingRight) 1f else -1f, scaleY = 1f)
+                    .size(52.dp)
+                    .rotate(tilt)
+                    .scale(
+                        scaleX = if (facingRight) 1f else -1f,
+                        scaleY = squashY
+                    )
             )
         }
     }
@@ -193,22 +210,22 @@ fun MiloCompanion(
 
 @Composable
 private fun MiloFigure(mood: MiloMood, modifier: Modifier = Modifier) {
-    val body = Color(0xFFB9A8B7)
-    val bodyDark = Color(0xFF8F7C8C)
-    val snout = Color(0xFFE0BEB5)
-    val innerEar = Color(0xFFEACCC5)
-    val eye = Color(0xFF2F292C)
+    val body = Color(0xFFB8A8B7)
+    val bodyDark = Color(0xFF8E7C8C)
+    val snout = Color(0xFFE3C2BA)
+    val innerEar = Color(0xFFF0D3CC)
+    val eye = Color(0xFF30292D)
     val white = Color(0xFFFFFCF8)
-    val cheek = Color(0x66F1A9A0)
+    val cheek = Color(0x66F2AAA1)
 
     Canvas(modifier) {
         val w = size.width
         val h = size.height
 
         drawOval(
-            color = bodyDark.copy(alpha = .18f),
-            topLeft = Offset(w * .13f, h * .80f),
-            size = Size(w * .72f, h * .12f)
+            color = bodyDark.copy(alpha = .16f),
+            topLeft = Offset(w * .13f, h * .81f),
+            size = Size(w * .72f, h * .11f)
         )
 
         drawOval(
