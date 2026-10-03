@@ -43,7 +43,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.mietmoments.verwaltung.data.EventDto
 import de.mietmoments.verwaltung.data.SnapshotResponse
-import de.mietmoments.verwaltung.ui.components.MomoMascot
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -64,14 +63,6 @@ fun DashboardScreen(
     onOpenCustomer: (Int, Int) -> Unit
 ) {
     val events = snapshot?.events.orEmpty().sortedBy { it.date }
-    val phrase = when {
-        !online -> "Netz weg. Ruhe bewahren. Ich habe den letzten Stand noch im Rucksack."
-        syncing -> "Ich sortiere gerade Daten. Bitte nicht am Kabel ziehen."
-        events.isEmpty() -> "Diese Woche ist verdächtig ruhig. Sogar die Kabelbinder entspannen sich."
-        events.size >= 8 -> "Da kommt was auf uns zu. Ich habe die Kisten innerlich schon beschriftet."
-        else -> "Alles im Blick. Du machst die Events, ich passe auf das Chaos auf."
-    }
-
     LazyColumn(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -83,16 +74,6 @@ fun DashboardScreen(
                 onSync = onSync,
                 eventCount = events.size
             )
-        }
-
-        if (momoEnabled) {
-            item {
-                MomoMascot(
-                    message = phrase,
-                    animated = animations,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
         }
 
         item {
