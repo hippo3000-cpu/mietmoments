@@ -1,43 +1,41 @@
-# MietMoments Android v2
+# MietMoments Android
 
-Die neue native Android-App für MietMoments. Der vorherige WebView-Client wird schrittweise durch eine moderne Kotlin-/Jetpack-Compose-App ersetzt.
+Native Android-App für die MietMoments-Verwaltung.
 
-## Was bereits enthalten ist
+## Modern Momo v3
 
-- modernes Material-3-Design mit Light/Dark Mode
-- animierter Startbereich und Seitenzustände
-- **Momo**, das optionale MietMoments-Maskottchen mit situationsabhängigen Sprüchen
-- Wochenplan mit Wochenwechsel und direkter Kundendetailansicht
-- Kundenliste mit fehlertoleranter Suche
-- Kundendetailansicht inklusive **Kundennotizen**, MietMoments, Fotobox und Location
-- Artikelübersicht inkl. Bestand/Lagerort
-- Location-Suche und direkte Navigation
-- manueller Sync plus lokaler Snapshot-/Kundencache
-- sichere Ersteinrichtung: API-Schlüssel wird nicht im Repository hinterlegt, sondern per Android Keystore verschlüsselt
-- GitHub Actions Debug-Build
+Die App wird als echte native Android-App mit **Kotlin + Jetpack Compose + Material 3** entwickelt. Sie ist bewusst getrennt von der Partnervermietungs-/Erich-App.
 
-## Entwicklungsbranch
+### Architektur
+- Paket: `de.mietmoments.verwaltung`
+- Kotlin + Jetpack Compose
+- Material 3
+- verschlüsselter App-Schlüssel über Android Keystore
+- lokaler JSON-Cache für schnelle/offline lesbare Ansichten
+- Server-API bleibt kompatibel zu `mobile_api.php`
+- GitHub Actions erzeugt reproduzierbare Debug-APKs
+- Java 17 / Android minSdk 26 / targetSdk 36
 
-`feature/native-compose-v2`
+### Oberfläche
+- modernes MietMoments-Farbsystem mit Hell-/Dunkelmodus
+- animiertes Dashboard und fließende Navigation
+- Wochenplan, Kunden, Artikel und Locations nativ
+- sichtbarer Online-/Sync-Status
+- Animationen können in den Einstellungen deaktiviert werden
 
-Debug-Builds verwenden `de.mietmoments.verwaltung.next` und können parallel zur bisherigen produktiven APK installiert werden.
+### Momo
+**Momo** ist das MietMoments-Maskottchen. Es reagiert auf den App-Zustand (offline, synchronisieren, ruhige oder volle Woche), bewegt sich dezent und liefert beim Antippen wechselnde kleine Sprüche. Momo kann komplett deaktiviert werden.
 
-## Server-Verbindung
+### Branches
+- `main`: stabiler Stand
+- `feature/native-compose-v2`: ursprüngliche Compose-Migration
+- `feature/modern-momo-v3`: modernes UI/UX und Momo-Ausbau
 
-Die App nutzt zunächst die bestehende API:
-
-`https://mietmoments.de/verwaltung/mobile_api.php`
-
-Beim ersten Start werden Serveradresse und App-Schlüssel eingetragen. Der Schlüssel wird nicht in GitHub gespeichert.
-
-## Build
-
-Das Repository braucht lokal keinen fest eingebetteten Server-Schlüssel.
+### Build
+GitHub Actions baut die App bei Änderungen automatisch. Lokal:
 
 ```bash
 gradle :app:assembleDebug
 ```
 
-GitHub Actions erzeugt bei jedem Push auf den Entwicklungsbranch ein Debug-APK als Workflow-Artefakt.
-
-Weitere Details: [Architektur](docs/ARCHITECTURE.md) · [Audit der alten APK](docs/APK_AUDIT.md)
+Die Debug-APK liegt danach unter `app/build/outputs/apk/debug/`.
