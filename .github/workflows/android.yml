@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ main, feature/native-compose-v2 ]
+    branches: [ main, feature/native-compose-v2, feature/modern-momo-v3 ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -25,6 +25,6 @@ jobs:
         run: gradle :app:assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: MietMoments-v2-debug
+          name: MietMoments-modern-momo-debug
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
