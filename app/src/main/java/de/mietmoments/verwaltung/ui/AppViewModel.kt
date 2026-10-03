@@ -39,23 +39,48 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         if (settings.configured) sync()
     }
 
-    fun saveSetup(serverUrl: String, token: String, momo: Boolean, animations: Boolean, onResult: (Boolean, String) -> Unit) {
+    fun saveSetup(serverUrl: String, pairCode: String, momo: Boolean, animations: Boolean, onResult: (Boolean, String) -> Unit) {
         viewModelScope.launch {
-            val candidate = AppSettings(serverUrl.trim().let { if (it.endsWith('/')) it else "$it/" }, token.trim(), momo, animations)
-            if (!candidate.serverUrl.startsWith("https://") || candidate.token.isBlank()) {
-                onResult(false, "Bitte HTTPS-Server und App-Schlüssel eintragen.")
+            val normalizedServer = serverUrl.trim().let { if (it.endsWith('/')) it else "$it/" }
+            val normalizedCode = pairCode.trim().uppercase().replace(Regex("[^A-Z0-9]"), "")
+            if (!normalizedServer.startsWith("https://")) {
+                onResult(false, "Bitte eine HTTPS-Serveradresse eintragen.")
                 return@launch
             }
+            if (normalizedCode.length != 8) {
+                onResult(false, "Bitte den 8-stelligen Kopplungscode aus der Verwaltung eingeben.")
+                return@launch
+            }
+
             _state.update { it.copy(syncing = true, error = null) }
-            val result = runCatching { repository.test(candidate) }
-            if (result.getOrDefault(false)) {
-                repository.settingsStore.save(candidate.serverUrl, candidate.token, candidate.momoEnabled, candidate.animationsEnabled)
-                _state.update { it.copy(settings = candidate, configured = true, syncing = false, online = true) }
+            val result = runCatching {
+                val token = repository.pair(normalizedServer, normalizedCode)
+                val candidate = AppSettings(normalizedServer, token, momo, animations)
+                if (!repository.test(candidate)) error("Verbindungstest fehlgeschlagen.")
+                candidate
+            }
+
+            result.onSuccess { candidate ->
+                repository.settingsStore.save(
+                    candidate.serverUrl,
+                    candidate.token,
+                    candidate.momoEnabled,
+                    candidate.animationsEnabled
+                )
+                _state.update {
+                    it.copy(
+                        settings = candidate,
+                        configured = true,
+                        syncing = false,
+                        online = true,
+                        error = null
+                    )
+                }
                 sync()
-                onResult(true, "Verbindung steht.")
-            } else {
-                _state.update { it.copy(syncing = false, online = false, error = result.exceptionOrNull()?.message) }
-                onResult(false, result.exceptionOrNull()?.message ?: "Verbindung fehlgeschlagen.")
+                onResult(true, "Gekoppelt. Momo kennt jetzt den Weg.")
+            }.onFailure { error ->
+                _state.update { it.copy(syncing = false, online = false, error = error.message) }
+                onResult(false, error.message ?: "Kopplung fehlgeschlagen.")
             }
         }
     }

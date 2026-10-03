@@ -18,6 +18,8 @@ class MietMomentsRepository(context: Context) {
         runCatching { api.json.decodeFromString<CustomerDetailResponse>(raw) }.getOrNull()
     }
 
+    suspend fun pair(serverUrl: String, code: String): String = api.pair(serverUrl, code)
+
     suspend fun test(settings: AppSettings): Boolean = api.health(settings)
 
     suspend fun sync(settings: AppSettings, weekStart: LocalDate): SnapshotResponse {

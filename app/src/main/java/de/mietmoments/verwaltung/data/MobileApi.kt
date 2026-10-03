@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -15,6 +16,41 @@ class MobileApi {
         isLenient = true
         explicitNulls = false
         coerceInputValues = true
+    }
+
+    suspend fun pair(serverUrl: String, code: String): String = withContext(Dispatchers.IO) {
+        require(serverUrl.startsWith("https://")) { "Nur HTTPS-Server sind erlaubt." }
+        val connection = (URL(serverUrl + "mobile_api.php?action=pair").openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 12_000
+            readTimeout = 25_000
+            doOutput = true
+            setRequestProperty("Accept", "application/json")
+            setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+            setRequestProperty("User-Agent", "MietMoments-Android/2")
+        }
+
+        return@withContext try {
+            val body = "code=" + enc(code)
+            OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { it.write(body) }
+
+            val status = connection.responseCode
+            val stream = if (status in 200..299) connection.inputStream else connection.errorStream
+            val response = BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).use { it.readText() }
+            val parsed = runCatching { json.decodeFromString<PairResponse>(response) }.getOrElse {
+                error("Die Kopplungsantwort des Servers ist ungültig.")
+            }
+
+            if (status !in 200..299 || !parsed.ok || parsed.token.isBlank()) {
+                error(parsed.message.ifBlank {
+                    if (status == 401) "Kopplungscode ist ungültig oder abgelaufen."
+                    else "Kopplung fehlgeschlagen (Serverfehler $status)."
+                })
+            }
+            parsed.token
+        } finally {
+            connection.disconnect()
+        }
     }
 
     suspend fun health(settings: AppSettings): Boolean = withContext(Dispatchers.IO) {
@@ -57,7 +93,7 @@ class MobileApi {
             val body = BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).use { it.readText() }
             if (code !in 200..299) {
                 val message = runCatching { json.parseToJsonElement(body).toString() }.getOrNull()
-                error(if (code == 401) "App-Schlüssel ist ungültig." else "Serverfehler $code${message?.let { ": $it" }.orEmpty()}")
+                error(if (code == 401) "App-Verbindung ist nicht mehr gültig." else "Serverfehler $code${message?.let { ": $it" }.orEmpty()}")
             }
             body
         } finally {

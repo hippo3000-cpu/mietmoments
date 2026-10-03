@@ -1,43 +1,49 @@
-# MietMoments Android v2
+# MietMoments Android
 
-Die neue native Android-App für MietMoments. Der vorherige WebView-Client wird schrittweise durch eine moderne Kotlin-/Jetpack-Compose-App ersetzt.
+Native Android-App für die MietMoments-Verwaltung.
 
-## Was bereits enthalten ist
+## MietMoments 2.2.0 · Pink Milo 3D + Elegant Magic
 
-- modernes Material-3-Design mit Light/Dark Mode
-- animierter Startbereich und Seitenzustände
-- **Momo**, das optionale MietMoments-Maskottchen mit situationsabhängigen Sprüchen
-- Wochenplan mit Wochenwechsel und direkter Kundendetailansicht
-- Kundenliste mit fehlertoleranter Suche
-- Kundendetailansicht inklusive **Kundennotizen**, MietMoments, Fotobox und Location
-- Artikelübersicht inkl. Bestand/Lagerort
-- Location-Suche und direkte Navigation
-- manueller Sync plus lokaler Snapshot-/Kundencache
-- sichere Ersteinrichtung: API-Schlüssel wird nicht im Repository hinterlegt, sondern per Android Keystore verschlüsselt
-- GitHub Actions Debug-Build
+Die App ist eine echte native Android-App mit **Kotlin + Jetpack Compose + Material 3** und bleibt bewusst getrennt von der Partnervermietungs-/Erich-App.
 
-## Entwicklungsbranch
+### Architektur
+- Paket: `de.mietmoments.verwaltung`
+- Kotlin + Jetpack Compose
+- Material 3
+- verschlüsselter App-Schlüssel über Android Keystore
+- kurzer Einmal-Kopplungscode statt manuellem API-Schlüssel
+- lokaler JSON-Cache für schnelle/offline lesbare Ansichten
+- Server-API über `mobile_api.php`
+- GitHub Actions für reproduzierbare APK-Builds
+- Java 17 / Android minSdk 26 / targetSdk 36
 
-`feature/native-compose-v2`
+### Elegant Magic
+- heller Weiß-/Creme-/Champagner-Hintergrund
+- dezenter animierter Glitzer und weiche Lichtreflexe
+- warme Gold-/Rosé-Akzente
+- moderne Karten und klare mobile Navigation
+- Animationen können in den Einstellungen deaktiviert werden
 
-Debug-Builds verwenden `de.mietmoments.verwaltung.next` und können parallel zur bisherigen produktiven APK installiert werden.
+### Milo
+**Milo** ist ein kleines rosa 3D-Baby-Nilpferd im glossy Tamagotchi-Stil. Die freigegebene Milo-Grafik ist direkt Bestandteil der App. Milo bewegt sich dezent frei über die Oberfläche, läuft, hüpft, federt, schläft und reagiert mit kleinen Bewegungen auf Synchronisierung, Offline-Zustand und volle Wochen. Gelegentlich erscheint kurz eine kleine Sprechblase.
 
-## Server-Verbindung
+Milo kann in den Einstellungen komplett deaktiviert werden.
 
-Die App nutzt zunächst die bestehende API:
+### Funktionen
+- Dashboard
+- Wochenplan
+- Kundensuche
+- Kundendetails inklusive Kundennotizen
+- MietMoments- und Fotobox-Details
+- Artikel und Lager
+- Locations
+- Online-/Offline- und Sync-Status
+- sichere App-Kopplung
 
-`https://mietmoments.de/verwaltung/mobile_api.php`
-
-Beim ersten Start werden Serveradresse und App-Schlüssel eingetragen. Der Schlüssel wird nicht in GitHub gespeichert.
-
-## Build
-
-Das Repository braucht lokal keinen fest eingebetteten Server-Schlüssel.
+### Build
+GitHub Actions baut Debug- und Release-Varianten. Lokal:
 
 ```bash
 gradle :app:assembleDebug
+gradle :app:assembleRelease
 ```
-
-GitHub Actions erzeugt bei jedem Push auf den Entwicklungsbranch ein Debug-APK als Workflow-Artefakt.
-
-Weitere Details: [Architektur](docs/ARCHITECTURE.md) · [Audit der alten APK](docs/APK_AUDIT.md)
