@@ -1,6 +1,7 @@
 package de.mietmoments.verwaltung.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,9 +71,14 @@ fun CustomerDetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .border(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = .28f), RoundedCornerShape(28.dp))
                     .background(
                         Brush.linearGradient(
-                            listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
+                            listOf(
+                                MaterialTheme.colorScheme.surface.copy(alpha = .96f),
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = .88f),
+                                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = .72f)
+                            )
                         ),
                         RoundedCornerShape(28.dp)
                     )
@@ -83,10 +89,10 @@ fun CustomerDetailScreen(
                         c.displayName,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     if (c.customerNo.isNotBlank()) {
-                        Text(c.customerNo, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .82f), fontWeight = FontWeight.Bold)
+                        Text(c.customerNo, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (c.phone.isNotBlank()) {
@@ -231,10 +237,14 @@ private fun DetailCard(
 ) {
     Card(
         shape = RoundedCornerShape(22.dp),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(22.dp)),
         colors = CardDefaults.cardColors(
-            containerColor = if (emphasized) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
-        )
+            containerColor = if (emphasized) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = .88f)
+            else MaterialTheme.colorScheme.surface.copy(alpha = .90f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
