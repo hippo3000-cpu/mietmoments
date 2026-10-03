@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
@@ -30,20 +31,31 @@ fun ElegantMagicBackground(
     val phase by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(6200, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(7600, easing = LinearEasing)),
         label = "magic-sparkle"
+    )
+    val shimmer by transition.animateFloat(
+        initialValue = -0.35f,
+        targetValue = 1.35f,
+        animationSpec = infiniteRepeatable(tween(9800, easing = LinearEasing)),
+        label = "magic-shimmer"
     )
 
     val sparkles = remember {
         listOf(
-            Triple(.06f, .10f, 1.7f), Triple(.15f, .22f, 1.0f), Triple(.27f, .08f, 1.4f),
-            Triple(.39f, .18f, 1.8f), Triple(.52f, .08f, 1.1f), Triple(.64f, .21f, 1.6f),
-            Triple(.77f, .12f, 1.2f), Triple(.90f, .25f, 1.7f), Triple(.96f, .08f, .9f),
-            Triple(.09f, .42f, 1.0f), Triple(.23f, .55f, 1.6f), Triple(.36f, .40f, .9f),
-            Triple(.49f, .58f, 1.3f), Triple(.62f, .45f, 1.0f), Triple(.75f, .59f, 1.5f),
-            Triple(.90f, .47f, 1.1f), Triple(.05f, .78f, 1.4f), Triple(.18f, .91f, .9f),
-            Triple(.31f, .81f, 1.7f), Triple(.46f, .93f, 1.1f), Triple(.59f, .79f, 1.3f),
-            Triple(.72f, .91f, .9f), Triple(.84f, .80f, 1.6f), Triple(.95f, .93f, 1.0f)
+            Triple(.04f,.07f,1.8f), Triple(.10f,.17f,1.1f), Triple(.18f,.09f,1.3f),
+            Triple(.27f,.22f,1.9f), Triple(.34f,.06f,1.0f), Triple(.42f,.16f,1.5f),
+            Triple(.51f,.08f,1.2f), Triple(.59f,.24f,1.8f), Triple(.68f,.11f,1.0f),
+            Triple(.77f,.20f,1.6f), Triple(.86f,.07f,1.2f), Triple(.95f,.18f,1.9f),
+            Triple(.06f,.36f,1.1f), Triple(.16f,.47f,1.7f), Triple(.25f,.34f,1.0f),
+            Triple(.37f,.50f,1.4f), Triple(.47f,.38f,1.2f), Triple(.56f,.55f,1.8f),
+            Triple(.66f,.40f,1.0f), Triple(.74f,.51f,1.5f), Triple(.85f,.37f,1.2f),
+            Triple(.94f,.49f,1.7f), Triple(.04f,.67f,1.5f), Triple(.13f,.79f,1.0f),
+            Triple(.22f,.63f,1.8f), Triple(.32f,.73f,1.1f), Triple(.43f,.65f,1.4f),
+            Triple(.54f,.81f,1.9f), Triple(.63f,.69f,1.0f), Triple(.72f,.78f,1.5f),
+            Triple(.82f,.64f,1.2f), Triple(.92f,.75f,1.8f), Triple(.07f,.91f,1.1f),
+            Triple(.20f,.96f,1.6f), Triple(.36f,.88f,1.0f), Triple(.48f,.96f,1.7f),
+            Triple(.65f,.91f,1.2f), Triple(.79f,.96f,1.5f), Triple(.94f,.90f,1.1f)
         )
     }
 
@@ -53,10 +65,11 @@ fun ElegantMagicBackground(
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xFFFFFEFC),
-                        Color(0xFFFFFAF1),
-                        Color(0xFFFFF5E8),
-                        Color(0xFFFFFCF7)
+                        Color(0xFFFFFEFD),
+                        Color(0xFFFFFBF4),
+                        Color(0xFFFFF4E4),
+                        Color(0xFFFFFAF2),
+                        Color(0xFFFFFDFC)
                     )
                 )
             )
@@ -64,51 +77,87 @@ fun ElegantMagicBackground(
         Canvas(Modifier.fillMaxSize()) {
             drawRect(
                 brush = Brush.radialGradient(
-                    colors = listOf(Color(0x66FFF0C9), Color.Transparent),
-                    center = Offset(size.width * .17f, size.height * .12f),
-                    radius = size.minDimension * .76f
+                    colors = listOf(Color(0x7AFFF0C2), Color.Transparent),
+                    center = Offset(size.width * .12f, size.height * .10f),
+                    radius = size.minDimension * .82f
                 )
             )
             drawRect(
                 brush = Brush.radialGradient(
-                    colors = listOf(Color(0x48F6D9AD), Color.Transparent),
-                    center = Offset(size.width * .88f, size.height * .72f),
-                    radius = size.minDimension * .66f
+                    colors = listOf(Color(0x55F6D8C7), Color.Transparent),
+                    center = Offset(size.width * .91f, size.height * .30f),
+                    radius = size.minDimension * .62f
                 )
             )
             drawRect(
                 brush = Brush.radialGradient(
-                    colors = listOf(Color(0x24FFFDF7), Color.Transparent),
-                    center = Offset(size.width * .52f, size.height * .42f),
-                    radius = size.minDimension * .44f
+                    colors = listOf(Color(0x4CFFE8AE), Color.Transparent),
+                    center = Offset(size.width * .82f, size.height * .80f),
+                    radius = size.minDimension * .72f
                 )
             )
+
+            if (animationsEnabled) {
+                val centerX = size.width * shimmer
+                drawRect(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.White.copy(alpha = .03f),
+                            Color(0xFFFFE4A6).copy(alpha = .10f),
+                            Color.White.copy(alpha = .22f),
+                            Color(0xFFFFE4A6).copy(alpha = .08f),
+                            Color.Transparent
+                        ),
+                        start = Offset(centerX - size.width * .24f, 0f),
+                        end = Offset(centerX + size.width * .24f, size.height)
+                    )
+                )
+            }
 
             sparkles.forEachIndexed { index, sparkle ->
-                val pulse = if (animationsEnabled) {
-                    ((sin((phase * 2f * PI + index * .67).toDouble()) + 1.0) / 2.0).toFloat()
-                } else .42f
+                val wave = if (animationsEnabled) {
+                    ((sin((phase * 2f * PI + index * .71).toDouble()) + 1.0) / 2.0).toFloat()
+                } else .55f
+                val driftX = if (animationsEnabled) cos((phase * 2f * PI + index).toDouble()).toFloat() * 2.2f * density else 0f
+                val driftY = if (animationsEnabled) sin((phase * 2f * PI + index * .6).toDouble()).toFloat() * 1.8f * density else 0f
 
-                val alpha = .07f + pulse * .28f
+                val alpha = .11f + wave * .50f
                 val base = sparkle.third * density
-                val center = Offset(size.width * sparkle.first, size.height * sparkle.second)
+                val center = Offset(
+                    size.width * sparkle.first + driftX,
+                    size.height * sparkle.second + driftY
+                )
 
-                drawCircle(Color.White.copy(alpha = alpha * .95f), radius = base * 2.1f, center = center)
-                drawCircle(Color(0xFFFFDDA0).copy(alpha = alpha), radius = base * .72f, center = center)
+                drawCircle(
+                    color = Color.White.copy(alpha = alpha * .72f),
+                    radius = base * (2.3f + wave * .9f),
+                    center = center
+                )
+                drawCircle(
+                    color = Color(0xFFFFD98B).copy(alpha = alpha * .92f),
+                    radius = base * (.62f + wave * .28f),
+                    center = center
+                )
 
-                if (index % 4 == 0) {
-                    val arm = base * (2.7f + pulse * .8f)
+                if (index % 3 == 0) {
+                    val arm = base * (3.2f + wave * 1.5f)
+                    val stroke = (.62f + wave * .42f) * density
+                    val ray = Color.White.copy(alpha = alpha)
+
+                    drawLine(ray, Offset(center.x - arm, center.y), Offset(center.x + arm, center.y), stroke)
+                    drawLine(ray, Offset(center.x, center.y - arm), Offset(center.x, center.y + arm), stroke)
                     drawLine(
-                        color = Color.White.copy(alpha = alpha * .9f),
-                        start = Offset(center.x - arm, center.y),
-                        end = Offset(center.x + arm, center.y),
-                        strokeWidth = .7f * density
+                        ray.copy(alpha = alpha * .62f),
+                        Offset(center.x - arm * .55f, center.y - arm * .55f),
+                        Offset(center.x + arm * .55f, center.y + arm * .55f),
+                        stroke * .72f
                     )
                     drawLine(
-                        color = Color.White.copy(alpha = alpha * .9f),
-                        start = Offset(center.x, center.y - arm),
-                        end = Offset(center.x, center.y + arm),
-                        strokeWidth = .7f * density
+                        ray.copy(alpha = alpha * .62f),
+                        Offset(center.x + arm * .55f, center.y - arm * .55f),
+                        Offset(center.x - arm * .55f, center.y + arm * .55f),
+                        stroke * .72f
                     )
                 }
             }
