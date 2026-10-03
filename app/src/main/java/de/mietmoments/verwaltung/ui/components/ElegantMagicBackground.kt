@@ -104,8 +104,8 @@ fun ElegantMagicBackground(
                         colors = listOf(
                             Color.Transparent,
                             Color.White.copy(alpha = .03f),
-                            Color(0xFFFFE4A6).copy(alpha = .10f),
-                            Color.White.copy(alpha = .22f),
+                            Color(0xFFFFE4A6).copy(alpha = .16f),
+                            Color.White.copy(alpha = .34f),
                             Color(0xFFFFE4A6).copy(alpha = .08f),
                             Color.Transparent
                         ),
@@ -122,7 +122,7 @@ fun ElegantMagicBackground(
                 val driftX = if (animationsEnabled) cos((phase * 2f * PI + index).toDouble()).toFloat() * 2.2f * density else 0f
                 val driftY = if (animationsEnabled) sin((phase * 2f * PI + index * .6).toDouble()).toFloat() * 1.8f * density else 0f
 
-                val alpha = .11f + wave * .50f
+                val alpha = .17f + wave * .62f
                 val base = sparkle.third * density
                 val center = Offset(
                     size.width * sparkle.first + driftX,
@@ -135,13 +135,13 @@ fun ElegantMagicBackground(
                     center = center
                 )
                 drawCircle(
-                    color = Color(0xFFFFD98B).copy(alpha = alpha * .92f),
+                    color = Color(0xFFFFD98B).copy(alpha = alpha),
                     radius = base * (.62f + wave * .28f),
                     center = center
                 )
 
-                if (index % 3 == 0) {
-                    val arm = base * (3.2f + wave * 1.5f)
+                if (index % 2 == 0) {
+                    val arm = base * (3.7f + wave * 1.9f)
                     val stroke = (.62f + wave * .42f) * density
                     val ray = Color.White.copy(alpha = alpha)
 
