@@ -2,40 +2,48 @@
 
 Native Android-App für die MietMoments-Verwaltung.
 
-## Modern Momo v3
+## MietMoments 2.0.0 · Elegant Magic + Milo
 
-Die App wird als echte native Android-App mit **Kotlin + Jetpack Compose + Material 3** entwickelt. Sie ist bewusst getrennt von der Partnervermietungs-/Erich-App.
+Die App ist eine echte native Android-App mit **Kotlin + Jetpack Compose + Material 3** und bleibt bewusst getrennt von der Partnervermietungs-/Erich-App.
 
 ### Architektur
 - Paket: `de.mietmoments.verwaltung`
 - Kotlin + Jetpack Compose
 - Material 3
 - verschlüsselter App-Schlüssel über Android Keystore
+- kurzer Einmal-Kopplungscode statt manuellem API-Schlüssel
 - lokaler JSON-Cache für schnelle/offline lesbare Ansichten
-- Server-API bleibt kompatibel zu `mobile_api.php`
-- GitHub Actions erzeugt reproduzierbare Debug-APKs
+- Server-API über `mobile_api.php`
+- GitHub Actions für reproduzierbare APK-Builds
 - Java 17 / Android minSdk 26 / targetSdk 36
 
-### Oberfläche
-- modernes MietMoments-Farbsystem mit Hell-/Dunkelmodus
-- animiertes Dashboard und fließende Navigation
-- Wochenplan, Kunden, Artikel und Locations nativ
-- sichtbarer Online-/Sync-Status
+### Elegant Magic
+- heller Weiß-/Creme-/Champagner-Hintergrund
+- dezenter animierter Glitzer und weiche Lichtreflexe
+- warme Gold-/Rosé-Akzente
+- moderne Karten und klare mobile Navigation
 - Animationen können in den Einstellungen deaktiviert werden
 
-### Momo
-**Momo** ist das MietMoments-Maskottchen. Es reagiert auf den App-Zustand (offline, synchronisieren, ruhige oder volle Woche), bewegt sich dezent und liefert beim Antippen wechselnde kleine Sprüche. Momo kann komplett deaktiviert werden.
+### Milo
+**Milo** ist ein kleines Baby-Nilpferd im Tamagotchi-Stil. Er ist kein festes Textmodul, sondern bewegt sich dezent frei über die App. Je nach Zustand läuft, hüpft, springt, schläft, grinst oder schaut er traurig bzw. neugierig. Gelegentlich erscheint für kurze Zeit eine kleine Sprechblase. Milo reagiert unter anderem auf Synchronisierung, Offline-Zustand und volle Wochen.
 
-### Branches
-- `main`: stabiler Stand
-- `feature/native-compose-v2`: ursprüngliche Compose-Migration
-- `feature/modern-momo-v3`: modernes UI/UX und Momo-Ausbau
+Milo kann in den Einstellungen komplett deaktiviert werden.
+
+### Funktionen
+- Dashboard
+- Wochenplan
+- Kundensuche
+- Kundendetails inklusive Kundennotizen
+- MietMoments- und Fotobox-Details
+- Artikel und Lager
+- Locations
+- Online-/Offline- und Sync-Status
+- sichere App-Kopplung
 
 ### Build
-GitHub Actions baut die App bei Änderungen automatisch. Lokal:
+GitHub Actions baut Debug- und Release-Varianten. Lokal:
 
 ```bash
 gradle :app:assembleDebug
+gradle :app:assembleRelease
 ```
-
-Die Debug-APK liegt danach unter `app/build/outputs/apk/debug/`.
