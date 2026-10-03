@@ -4,6 +4,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class PairResponse(
+    val ok: Boolean = false,
+    val token: String = "",
+    val message: String = ""
+)
+
+@Serializable
 data class SnapshotResponse(
     val ok: Boolean = false,
     @SerialName("api_version") val apiVersion: String = "",
