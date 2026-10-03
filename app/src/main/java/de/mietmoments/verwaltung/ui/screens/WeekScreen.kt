@@ -2,6 +2,7 @@ package de.mietmoments.verwaltung.ui.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -96,9 +97,12 @@ private fun WeekHeader(
     onToday: () -> Unit,
     onNext: () -> Unit
 ) {
+    val headerShape = RoundedCornerShape(28.dp)
     Card(
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = .26f), headerShape),
+        shape = headerShape,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .78f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
@@ -179,13 +183,16 @@ private fun EventCard(
     onOpenCustomer: (Int, Int) -> Unit,
     onNavigate: (String) -> Unit
 ) {
+    val eventShape = RoundedCornerShape(22.dp)
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onOpenCustomer(event.customerId, event.orderId) }
-            .animateContentSize(),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            .animateContentSize()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, eventShape),
+        shape = eventShape,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .90f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             Row(
