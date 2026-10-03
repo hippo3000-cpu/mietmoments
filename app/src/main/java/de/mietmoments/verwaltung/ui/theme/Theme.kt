@@ -10,24 +10,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 private val ElegantMagicColors = lightColorScheme(
-    primary = Color(0xFFB57A27),
+    primary = Color(0xFF9E681D),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFFFE9BB),
-    onPrimaryContainer = Color(0xFF4B3511),
-    secondary = Color(0xFFC58B82),
+    primaryContainer = Color(0xFFFFE8B2),
+    onPrimaryContainer = Color(0xFF49310B),
+    secondary = Color(0xFFB87772),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFFFE5DF),
-    onSecondaryContainer = Color(0xFF53312C),
-    tertiary = Color(0xFFD6B06A),
-    onTertiary = Color(0xFF35270C),
+    secondaryContainer = Color(0xFFFFE2DD),
+    onSecondaryContainer = Color(0xFF512E2B),
+    tertiary = Color(0xFFC99A45),
+    onTertiary = Color(0xFFFFFFFF),
     tertiaryContainer = Color(0xFFFFEDC7),
-    onTertiaryContainer = Color(0xFF4A3712),
-    background = Color(0xFFFFFBF3),
-    surface = Color(0xFFFFFEFB),
-    surfaceVariant = Color(0xFFF7EFE3),
-    onSurface = Color(0xFF2D2823),
-    onSurfaceVariant = Color(0xFF6D6257),
-    outline = Color(0xFFB9AA98),
+    onTertiaryContainer = Color(0xFF49350D),
+    background = Color(0xFFFFFBF5),
+    surface = Color(0xF5FFFEFB),
+    surfaceVariant = Color(0xE8F8EFE3),
+    onSurface = Color(0xFF28231F),
+    onSurfaceVariant = Color(0xFF6B5E53),
+    outline = Color(0xFFB7A58E),
+    outlineVariant = Color(0x66CBB99F),
     error = Color(0xFFB3261E)
 )
 
@@ -38,9 +39,13 @@ private val AppTypography = Typography(
     headlineSmall = TextStyle(fontSize = 23.sp, lineHeight = 28.sp, fontWeight = FontWeight.ExtraBold),
     titleLarge = TextStyle(fontSize = 20.sp, lineHeight = 26.sp, fontWeight = FontWeight.Bold),
     titleMedium = TextStyle(fontSize = 17.sp, lineHeight = 23.sp, fontWeight = FontWeight.SemiBold),
+    titleSmall = TextStyle(fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold),
     bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 24.sp, fontWeight = FontWeight.Normal),
     bodyMedium = TextStyle(fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal),
-    labelLarge = TextStyle(fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.Bold)
+    bodySmall = TextStyle(fontSize = 12.sp, lineHeight = 17.sp, fontWeight = FontWeight.Normal),
+    labelLarge = TextStyle(fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.Bold),
+    labelMedium = TextStyle(fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.SemiBold),
+    labelSmall = TextStyle(fontSize = 11.sp, lineHeight = 14.sp, fontWeight = FontWeight.SemiBold)
 )
 
 @Composable
