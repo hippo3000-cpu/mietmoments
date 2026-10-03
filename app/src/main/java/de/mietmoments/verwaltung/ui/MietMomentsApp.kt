@@ -11,10 +11,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Inventory2
@@ -124,7 +128,15 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                         transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(120)) },
                         label = "title"
                     ) { title ->
-                        Text(title, fontWeight = FontWeight.Black)
+                        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Icon(
+                                Icons.Rounded.AutoAwesome,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(title, fontWeight = FontWeight.Black)
+                        }
                     }
                 },
                 actions = {
@@ -137,8 +149,8 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .90f),
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = .96f),
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .82f),
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = .92f),
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                     actionIconContentColor = MaterialTheme.colorScheme.primary
                 )
@@ -146,7 +158,10 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
         },
         bottomBar = {
             if (topLevel) {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .93f)) {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .86f),
+                    tonalElevation = 0.dp
+                ) {
                     Route.entries.forEach { route ->
                         NavigationBarItem(
                             selected = current == route.value,
