@@ -25,23 +25,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.mietmoments.verwaltung.BuildConfig
 import de.mietmoments.verwaltung.data.AppSettings
-import de.mietmoments.verwaltung.ui.components.MomoMascot
 
 @Composable
 fun SettingsScreen(settings: AppSettings, onPreferences: (Boolean, Boolean) -> Unit) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text("Einstellungen", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
         Text(
-            "Aussehen, Momo und die Verbindung zu deiner MietMoments-Verwaltung.",
+            "Aussehen, Milo und die Verbindung zu deiner MietMoments-Verwaltung.",
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-
-        if (settings.momoEnabled) {
-            MomoMascot(
-                "Ich bin übrigens abschaltbar. Persönlich nehme ich das natürlich überhaupt nicht.",
-                animated = settings.animationsEnabled
-            )
-        }
 
         Card(
             shape = RoundedCornerShape(24.dp),
@@ -84,14 +76,14 @@ fun SettingsScreen(settings: AppSettings, onPreferences: (Boolean, Boolean) -> U
                     Text("App-Erlebnis", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
                 SettingSwitch(
-                    "Momo",
-                    "Maskottchen, Statushinweise und kleine Sprüche anzeigen",
+                    "Milo",
+                    "Kleines Baby-Nilpferd frei in der App bewegen",
                     settings.momoEnabled
                 ) { onPreferences(it, settings.animationsEnabled) }
 
                 SettingSwitch(
                     "Animationen",
-                    "Bewegungen, Übergänge und Momo-Animationen",
+                    "Glitzern, Übergänge und Milo-Bewegungen",
                     settings.animationsEnabled
                 ) { onPreferences(settings.momoEnabled, it) }
             }
