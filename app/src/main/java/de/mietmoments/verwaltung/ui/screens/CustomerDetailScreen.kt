@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.mietmoments.verwaltung.data.CustomerDetailResponse
-import de.mietmoments.verwaltung.ui.components.MomoMascot
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -219,15 +218,6 @@ fun CustomerDetailScreen(
             }
         }
 
-        if (momoEnabled) {
-            item {
-                MomoMascot(
-                    "Kundennotizen gelesen? Sehr gut. Genau dort wohnt meistens der Satz, den später alle suchen.",
-                    animated = animations,
-                    compact = true
-                )
-            }
-        }
     }
 }
 
