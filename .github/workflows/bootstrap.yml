@@ -19,10 +19,11 @@ jobs:
       - name: Expand prepared source tree
         shell: bash
         run: |
-          test -f bootstrap_source.b64 || exit 0
-          base64 -d bootstrap_source.b64 > /tmp/mietmoments-v2.zip
+          parts=(bootstrap_source.part*)
+          [ -e "${parts[0]}" ] || exit 0
+          cat bootstrap_source.part* | base64 -d > /tmp/mietmoments-v2.zip
           unzip -o /tmp/mietmoments-v2.zip -d .
-          rm -f bootstrap_source.b64 .github/workflows/bootstrap.yml
+          rm -f bootstrap_source.part* .github/workflows/bootstrap.yml
       - name: Commit native project
         shell: bash
         run: |
