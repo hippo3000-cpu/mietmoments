@@ -38,6 +38,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,8 @@ import de.mietmoments.verwaltung.ui.screens.LocationsScreen
 import de.mietmoments.verwaltung.ui.screens.SettingsScreen
 import de.mietmoments.verwaltung.ui.screens.SetupScreen
 import de.mietmoments.verwaltung.ui.screens.WeekScreen
+import de.mietmoments.verwaltung.ui.components.ElegantMagicBackground
+import de.mietmoments.verwaltung.ui.components.MiloCompanion
 import de.mietmoments.verwaltung.ui.theme.MietMomentsTheme
 
 private enum class Route(val value: String, val label: String) {
@@ -66,10 +69,23 @@ private enum class Route(val value: String, val label: String) {
 fun MietMomentsRoot(viewModel: AppViewModel = viewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     MietMomentsTheme {
-        when {
-            state.loading -> Splash()
-            !state.configured -> SetupScreen(state.settings, state.syncing, viewModel::saveSetup)
-            else -> MainApp(state, viewModel)
+        ElegantMagicBackground(animationsEnabled = state.settings.animationsEnabled) {
+            Box(Modifier.fillMaxSize()) {
+                when {
+                    state.loading -> Splash()
+                    !state.configured -> SetupScreen(state.settings, state.syncing, viewModel::saveSetup)
+                    else -> MainApp(state, viewModel)
+                }
+                if (!state.loading) {
+                    MiloCompanion(
+                        enabled = state.settings.momoEnabled,
+                        animationsEnabled = state.settings.animationsEnabled,
+                        online = state.online,
+                        syncing = state.syncing,
+                        eventCount = state.snapshot?.events.orEmpty().size
+                    )
+                }
+            }
         }
     }
 }
@@ -91,7 +107,7 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
     )
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -121,8 +137,8 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .90f),
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = .96f),
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                     actionIconContentColor = MaterialTheme.colorScheme.primary
                 )
@@ -130,7 +146,7 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
         },
         bottomBar = {
             if (topLevel) {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .93f)) {
                     Route.entries.forEach { route ->
                         NavigationBarItem(
                             selected = current == route.value,
