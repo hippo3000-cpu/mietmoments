@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -283,7 +282,7 @@ fun MiloCompanion(
                 modifier = Modifier.size(68.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Canvas(Modifier.matchParentSize()) {
+                Canvas(Modifier.fillMaxSize()) {
                     val shadowPulse = when (mood) {
                         MiloMood.HOP -> 1f - abs(sin(phase * PI)).toFloat() * .34f
                         else -> 1f
