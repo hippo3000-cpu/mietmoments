@@ -4,6 +4,7 @@ import android.content.Context
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
+import java.util.UUID
 
 class MietMomentsRepository(context: Context) {
     val settingsStore = AppSettingsStore(context)
@@ -36,6 +37,49 @@ class MietMomentsRepository(context: Context) {
         cache.writeCustomer(customerId, resolvedOrder, raw)
         return data
     }
+
+    suspend fun saveBooking(
+        settings: AppSettings,
+        customerId: Int,
+        orderId: Int,
+        customer: CustomerDto,
+        order: OrderDto,
+        rental: RentalBookingDto?,
+        photobooth: PhotoboothDto?
+    ): SaveResponse = api.saveBooking(
+        settings,
+        SaveBookingRequest(
+            operationUuid = UUID.randomUUID().toString(),
+            customerId = customerId,
+            orderId = orderId,
+            useMietMoments = rental != null,
+            usePhotobooth = photobooth != null,
+            customer = customer,
+            order = order,
+            rental = rental,
+            photobooth = photobooth
+        )
+    )
+
+    suspend fun saveLocation(settings: AppSettings, location: LocationDto): SaveResponse =
+        api.saveLocation(
+            settings,
+            SaveLocationRequest(
+                operationUuid = UUID.randomUUID().toString(),
+                locationId = location.id,
+                location = location
+            )
+        )
+
+    suspend fun saveItem(settings: AppSettings, item: ItemDto): SaveResponse =
+        api.saveItem(
+            settings,
+            SaveItemRequest(
+                operationUuid = UUID.randomUUID().toString(),
+                itemId = item.id,
+                item = item
+            )
+        )
 
     companion object {
         fun currentWeekStart(today: LocalDate = LocalDate.now()): LocalDate =
