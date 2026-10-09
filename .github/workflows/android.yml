@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ main, feature/native-compose-v2, feature/modern-momo-v3 ]
+    branches: [ main, feature/native-compose-v2, feature/modern-momo-v3, feature/mobile-editing-v24 ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
