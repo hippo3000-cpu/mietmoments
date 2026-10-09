@@ -18,11 +18,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Business
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -40,7 +42,11 @@ import de.mietmoments.verwaltung.data.CustomerDto
 import java.text.Normalizer
 
 @Composable
-fun CustomersScreen(customers: List<CustomerDto>, onOpenCustomer: (Int, Int) -> Unit) {
+fun CustomersScreen(
+    customers: List<CustomerDto>,
+    onOpenCustomer: (Int, Int) -> Unit,
+    onEditCustomer: (Int, Int) -> Unit
+) {
     var query by remember { mutableStateOf("") }
     val rows = remember(customers, query) {
         customers
@@ -102,13 +108,17 @@ fun CustomersScreen(customers: List<CustomerDto>, onOpenCustomer: (Int, Int) -> 
         }
 
         items(rows.take(300), key = { it.id }) { customer ->
-            CustomerCard(customer = customer, onClick = { onOpenCustomer(customer.id, customer.orderId) })
+            CustomerCard(
+                customer = customer,
+                onClick = { onOpenCustomer(customer.id, customer.orderId) },
+                onEdit = { onEditCustomer(customer.id, customer.orderId) }
+            )
         }
     }
 }
 
 @Composable
-private fun CustomerCard(customer: CustomerDto, onClick: () -> Unit) {
+private fun CustomerCard(customer: CustomerDto, onClick: () -> Unit, onEdit: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -165,6 +175,10 @@ private fun CustomerCard(customer: CustomerDto, onClick: () -> Unit) {
                     if (customer.hasMm.value) ServicePill("MietMoments", false)
                     if (customer.hasPhoto.value) ServicePill("Fotobox", true)
                 }
+            }
+
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Rounded.Edit, "Kunde bearbeiten", tint = MaterialTheme.colorScheme.primary)
             }
         }
     }
