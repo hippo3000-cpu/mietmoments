@@ -2,6 +2,7 @@ package de.mietmoments.verwaltung.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +30,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -425,7 +425,7 @@ fun CustomerEditScreen(
 }
 
 @Composable
-private fun EditSection(title: String, content: @Composable Column.() -> Unit) {
+private fun EditSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     Card(
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = .94f))
@@ -553,10 +553,12 @@ private fun AddItemDialog(
     )
 }
 
-private fun parseNumber(raw: String): Double =
-    raw.trim().replace(".", "").replace(',', '.').toDoubleOrNull()
-        ?: raw.trim().replace(',', '.').toDoubleOrNull()
-        ?: 0.0
+private fun parseNumber(raw: String): Double {
+    val value = raw.trim().replace("€", "").replace(" ", "")
+    if (value.isBlank()) return 0.0
+    val normalized = if (value.contains(',')) value.replace(".", "").replace(',', '.') else value
+    return normalized.toDoubleOrNull() ?: 0.0
+}
 
 private fun formatNumber(value: Double): String =
     if (abs(value - value.toInt()) < .0001) value.toInt().toString()
