@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.Email
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Inventory2
 import androidx.compose.material.icons.rounded.Navigation
 import androidx.compose.material.icons.rounded.Note
@@ -25,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,7 +50,8 @@ fun CustomerDetailScreen(
     animations: Boolean,
     onCall: (String) -> Unit,
     onMail: (String) -> Unit,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onEdit: () -> Unit
 ) {
     if (detail == null) {
         Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
@@ -84,7 +87,10 @@ fun CustomerDetailScreen(
                     )
                     .padding(18.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                Column(
+                    modifier = Modifier.padding(end = 42.dp),
+                    verticalArrangement = Arrangement.spacedBy(9.dp)
+                ) {
                     Text(
                         c.displayName,
                         style = MaterialTheme.typography.headlineMedium,
@@ -111,6 +117,9 @@ fun CustomerDetailScreen(
                         }
                     }
                 }
+                IconButton(onClick = onEdit, modifier = Modifier.align(Alignment.TopEnd)) {
+                    Icon(Icons.Rounded.Edit, "Kunde bearbeiten", tint = MaterialTheme.colorScheme.primary)
+                }
             }
         }
 
@@ -120,7 +129,8 @@ fun CustomerDetailScreen(
                     icon = Icons.Rounded.Note,
                     title = "Kundennotizen",
                     subtitle = "Interne Hinweise",
-                    emphasized = true
+                    emphasized = true,
+                    onEdit = onEdit
                 ) {
                     Text(c.notes, style = MaterialTheme.typography.bodyLarge)
                 }
@@ -129,7 +139,7 @@ fun CustomerDetailScreen(
 
         selected.order?.let { order ->
             item {
-                DetailCard(Icons.Rounded.Navigation, "Termin", order.orderNo) {
+                DetailCard(Icons.Rounded.Navigation, "Termin", order.orderNo, onEdit = onEdit) {
                     if (order.eventDate.isNotBlank()) KeyValue("Eventdatum", prettyDate(order.eventDate))
                     if (order.venue.isNotBlank()) KeyValue("Location", order.venue)
                     if (order.eventAddress.isNotBlank()) {
@@ -146,7 +156,7 @@ fun CustomerDetailScreen(
 
         selected.rental?.let { rental ->
             item {
-                DetailCard(Icons.Rounded.Inventory2, "MietMoments", rental.rentalPeriodLabel.ifBlank { "Mietartikel" }) {
+                DetailCard(Icons.Rounded.Inventory2, "MietMoments", rental.rentalPeriodLabel.ifBlank { "Mietartikel" }, onEdit = onEdit) {
                     if (rental.rentalPeriodLabel.isNotBlank()) {
                         KeyValue(
                             "Mietzeitraum",
@@ -182,7 +192,7 @@ fun CustomerDetailScreen(
 
         selected.photobooth?.let { photo ->
             item {
-                DetailCard(Icons.Rounded.PhotoCamera, "Fotobox", photo.packageName.ifBlank { "Fotobox" }) {
+                DetailCard(Icons.Rounded.PhotoCamera, "Fotobox", photo.packageName.ifBlank { "Fotobox" }, onEdit = onEdit) {
                     if (photo.boxName.isNotBlank()) KeyValue("Box", photo.boxName)
                     if (photo.backgroundName.isNotBlank()) KeyValue("Hintergrund", photo.backgroundName)
                     if (photo.setName.isNotBlank()) KeyValue("Set", photo.setName)
@@ -205,9 +215,36 @@ fun CustomerDetailScreen(
             }
         }
 
+        if (selected.rental != null && selected.photobooth != null) {
+            item {
+                Surface(
+                    shape = RoundedCornerShape(24.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(18.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text("Gesamtpreis", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("Fotobox + MietMoments", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Text(
+                            money(selected.rental.total + selected.photobooth.totalPrice),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        }
+
         selected.location?.let { loc ->
             item {
-                DetailCard(Icons.Rounded.Navigation, loc.name.ifBlank { "Location" }, "Vor Ort") {
+                DetailCard(Icons.Rounded.Navigation, loc.name.ifBlank { "Location" }, "Vor Ort", onEdit = onEdit) {
                     if (loc.displayAddress.isNotBlank()) {
                         AssistChip(
                             onClick = { onNavigate(loc.displayAddress) },
@@ -233,6 +270,7 @@ private fun DetailCard(
     title: String,
     subtitle: String,
     emphasized: Boolean = false,
+    onEdit: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
@@ -247,7 +285,11 @@ private fun DetailCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box(
                     Modifier
                         .size(38.dp)
@@ -259,10 +301,15 @@ private fun DetailCard(
                 ) {
                     Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
                 }
-                Column {
+                Column(Modifier.weight(1f)) {
                     Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     if (subtitle.isNotBlank()) {
                         Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                if (onEdit != null) {
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Rounded.Edit, "Bearbeiten", tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
