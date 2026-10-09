@@ -13,15 +13,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Inventory2
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +40,13 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun ItemsScreen(itemsData: List<ItemDto>) {
+fun ItemsScreen(
+    itemsData: List<ItemDto>,
+    saving: Boolean,
+    onSaveItem: (ItemDto, (Boolean, String) -> Unit) -> Unit
+) {
     var query by remember { mutableStateOf("") }
+    var editing by remember { mutableStateOf<ItemDto?>(null) }
     val q = query.trim().lowercase()
     val rows = remember(itemsData, q) {
         itemsData.filter {
@@ -124,10 +133,108 @@ fun ItemsScreen(itemsData: List<ItemDto>) {
                             item.stock?.let { InfoPill("Bestand: ${smartNumber(it)}") }
                         }
                     }
+
+                    IconButton(onClick = { editing = item }, enabled = !saving) {
+                        Icon(Icons.Rounded.Edit, "Artikel bearbeiten", tint = MaterialTheme.colorScheme.primary)
+                    }
                 }
             }
         }
     }
+
+    editing?.let { item ->
+        EditItemDialog(
+            item = item,
+            saving = saving,
+            onDismiss = { if (!saving) editing = null },
+            onSave = { changed, callback ->
+                onSaveItem(changed) { ok, message ->
+                    callback(ok, message)
+                    if (ok) editing = null
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun EditItemDialog(
+    item: ItemDto,
+    saving: Boolean,
+    onDismiss: () -> Unit,
+    onSave: (ItemDto, (Boolean, String) -> Unit) -> Unit
+) {
+    var name by remember(item) { mutableStateOf(item.name) }
+    var sku by remember(item) { mutableStateOf(item.sku) }
+    var category by remember(item) { mutableStateOf(item.category) }
+    var variant by remember(item) { mutableStateOf(item.variant) }
+    var unit by remember(item) { mutableStateOf(item.unit) }
+    var priceType by remember(item) { mutableStateOf(item.priceType) }
+    var unitPrice by remember(item) { mutableStateOf(decimal(item.unitPrice)) }
+    var deposit by remember(item) { mutableStateOf(decimal(item.deposit)) }
+    var storage by remember(item) { mutableStateOf(item.storageLocation) }
+    var stock by remember(item) { mutableStateOf(item.stock?.let(::decimal).orEmpty()) }
+    var message by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Artikel bearbeiten") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SmallEditField("Name", name) { name = it }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SmallEditField("SKU", sku, Modifier.weight(1f)) { sku = it }
+                    SmallEditField("Kategorie", category, Modifier.weight(1f)) { category = it }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SmallEditField("Variante", variant, Modifier.weight(1f)) { variant = it }
+                    SmallEditField("Einheit", unit, Modifier.weight(1f)) { unit = it }
+                }
+                SmallEditField("Preistyp", priceType) { priceType = it }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SmallEditField("Preis €", unitPrice, Modifier.weight(1f)) { unitPrice = it }
+                    SmallEditField("Kaution €", deposit, Modifier.weight(1f)) { deposit = it }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SmallEditField("Lagerort", storage, Modifier.weight(1f)) { storage = it }
+                    SmallEditField("Bestand", stock, Modifier.weight(1f)) { stock = it }
+                }
+                if (message.isNotBlank()) Text(message, style = MaterialTheme.typography.bodySmall)
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = !saving && name.isNotBlank(),
+                onClick = {
+                    val changed = item.copy(
+                        name = name.trim(),
+                        sku = sku.trim(),
+                        category = category.trim(),
+                        variant = variant.trim(),
+                        unit = unit.trim(),
+                        priceType = priceType.trim(),
+                        unitPrice = parseDecimal(unitPrice),
+                        deposit = parseDecimal(deposit),
+                        storageLocation = storage.trim(),
+                        stock = stock.trim().takeIf { it.isNotEmpty() }?.let(::parseDecimal)
+                    )
+                    onSave(changed) { _, msg -> message = msg }
+                }
+            ) { Text(if (saving) "Speichert …" else "Speichern") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !saving) { Text("Abbrechen") } }
+    )
+}
+
+@Composable
+private fun SmallEditField(label: String, value: String, modifier: Modifier = Modifier.fillMaxWidth(), onChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onChange,
+        label = { Text(label) },
+        modifier = modifier,
+        singleLine = true
+    )
 }
 
 @Composable
@@ -143,5 +250,7 @@ private fun InfoPill(text: String) {
     }
 }
 
+private fun parseDecimal(value: String): Double = value.trim().replace(',', '.').toDoubleOrNull() ?: 0.0
+private fun decimal(value: Double): String = if (value % 1.0 == 0.0) value.toInt().toString() else String.format(Locale.GERMANY, "%.2f", value)
 private fun money(v: Double): String = NumberFormat.getCurrencyInstance(Locale.GERMANY).format(v)
 private fun smartNumber(v: Double): String = if (v % 1.0 == 0.0) v.toInt().toString() else String.format(Locale.GERMANY, "%.2f", v)
