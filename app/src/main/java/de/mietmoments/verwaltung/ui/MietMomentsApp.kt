@@ -230,10 +230,17 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                 )
             }
             composable(Route.Customers.value) {
-                CustomersScreen(state.snapshot?.customers.orEmpty()) { cid, oid ->
-                    viewModel.openCustomer(cid, oid)
-                    nav.navigate("customer")
-                }
+                CustomersScreen(
+                    customers = state.snapshot?.customers.orEmpty(),
+                    onOpenCustomer = { cid, oid ->
+                        viewModel.openCustomer(cid, oid)
+                        nav.navigate("customer")
+                    },
+                    onEditCustomer = { cid, oid ->
+                        viewModel.openCustomer(cid, oid)
+                        nav.navigate("customer_edit")
+                    }
+                )
             }
             composable(Route.Items.value) {
                 ItemsScreen(
