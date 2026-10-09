@@ -172,10 +172,12 @@ data class RentalBookingDto(
 @Serializable
 data class RentalPositionDto(
     val id: Int = 0,
+    @SerialName("rental_item_id") val rentalItemId: Int? = null,
     @SerialName("item_name") val itemName: String = "",
     @SerialName("variant_snapshot") val variantSnapshot: String = "",
     val quantity: Double = 0.0,
     @SerialName("unit_price") val unitPrice: Double = 0.0,
+    @SerialName("unit_deposit") val unitDeposit: Double = 0.0,
     @SerialName("line_total") val lineTotal: Double = 0.0,
     val notes: String = ""
 )
@@ -190,10 +192,59 @@ data class PhotoboothDto(
     @SerialName("set_name") val setName: String = "",
     @SerialName("layout_name") val layoutName: String = "",
     @SerialName("start_date") val startDate: String = "",
+    @SerialName("start_type") val startType: String = "setup",
     @SerialName("end_date") val endDate: String = "",
+    @SerialName("end_type") val endType: String = "teardown",
     @SerialName("total_price") val totalPrice: Double = 0.0,
     @SerialName("internet_option") val internetOption: FlexibleBoolean = FlexibleBoolean(false),
     @SerialName("second_printer") val secondPrinter: FlexibleBoolean = FlexibleBoolean(false),
+    @SerialName("support_enabled") val supportEnabled: FlexibleBoolean = FlexibleBoolean(false),
+    @SerialName("support_hours") val supportHours: Double = 0.0,
     @SerialName("extra_300_prints") val extraPrints: FlexibleBoolean = FlexibleBoolean(false),
-    @SerialName("dsgvo_option") val dsgvo: FlexibleBoolean = FlexibleBoolean(false)
+    @SerialName("dsgvo_option") val dsgvo: FlexibleBoolean = FlexibleBoolean(false),
+    @SerialName("distance_km") val distanceKm: Double = 0.0,
+    @SerialName("distance_fee") val distanceFee: Double = 0.0
+)
+
+
+@Serializable
+data class SaveResponse(
+    val ok: Boolean = false,
+    val retryable: Boolean = false,
+    val message: String = "",
+    @SerialName("operation_uuid") val operationUuid: String = "",
+    @SerialName("customer_id") val customerId: Int = 0,
+    @SerialName("order_id") val orderId: Int = 0,
+    @SerialName("location_id") val locationId: Int = 0,
+    @SerialName("item_id") val itemId: Int = 0
+)
+
+@Serializable
+data class SaveBookingRequest(
+    @SerialName("operation_uuid") val operationUuid: String,
+    @SerialName("operation_type") val operationType: String = "booking_update",
+    @SerialName("customer_id") val customerId: Int,
+    @SerialName("order_id") val orderId: Int,
+    @SerialName("use_mietmoments") val useMietMoments: Boolean,
+    @SerialName("use_photobooth") val usePhotobooth: Boolean,
+    val customer: CustomerDto,
+    val order: OrderDto,
+    val rental: RentalBookingDto? = null,
+    val photobooth: PhotoboothDto? = null
+)
+
+@Serializable
+data class SaveLocationRequest(
+    @SerialName("operation_uuid") val operationUuid: String,
+    @SerialName("operation_type") val operationType: String = "location_update",
+    @SerialName("location_id") val locationId: Int,
+    val location: LocationDto
+)
+
+@Serializable
+data class SaveItemRequest(
+    @SerialName("operation_uuid") val operationUuid: String,
+    @SerialName("operation_type") val operationType: String = "item_update",
+    @SerialName("item_id") val itemId: Int,
+    val item: ItemDto
 )
