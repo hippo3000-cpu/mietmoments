@@ -5,7 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.mietmoments.verwaltung.data.AppSettings
 import de.mietmoments.verwaltung.data.CustomerDetailResponse
+import de.mietmoments.verwaltung.data.CustomerDto
+import de.mietmoments.verwaltung.data.ItemDto
+import de.mietmoments.verwaltung.data.LocationDto
 import de.mietmoments.verwaltung.data.MietMomentsRepository
+import de.mietmoments.verwaltung.data.OrderDto
+import de.mietmoments.verwaltung.data.PhotoboothDto
+import de.mietmoments.verwaltung.data.RentalBookingDto
 import de.mietmoments.verwaltung.data.SnapshotResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +30,8 @@ data class AppUiState(
     val snapshot: SnapshotResponse? = null,
     val weekStart: LocalDate = MietMomentsRepository.currentWeekStart(),
     val customerDetail: CustomerDetailResponse? = null,
-    val customerLoading: Boolean = false
+    val customerLoading: Boolean = false,
+    val saving: Boolean = false
 )
 
 class AppViewModel(application: Application) : AndroidViewModel(application) {
@@ -120,6 +127,92 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             runCatching { repository.customer(settings, customerId, orderId) }
                 .onSuccess { detail -> _state.update { it.copy(customerDetail = detail, customerLoading = false, online = true) } }
                 .onFailure { error -> _state.update { it.copy(customerLoading = false, online = false, error = error.message ?: "Kundendaten konnten nicht geladen werden.") } }
+        }
+    }
+
+
+    fun saveCustomerDetail(
+        customer: CustomerDto,
+        order: OrderDto,
+        rental: RentalBookingDto?,
+        photobooth: PhotoboothDto?,
+        onResult: (Boolean, String) -> Unit
+    ) {
+        val current = _state.value
+        if (current.saving) return
+        val customerId = customer.id
+        val orderId = order.id
+        viewModelScope.launch {
+            _state.update { it.copy(saving = true, error = null) }
+            runCatching {
+                val saved = repository.saveBooking(
+                    settings = _state.value.settings,
+                    customerId = customerId,
+                    orderId = orderId,
+                    customer = customer,
+                    order = order,
+                    rental = rental,
+                    photobooth = photobooth
+                )
+                val savedCustomerId = saved.customerId.takeIf { it > 0 } ?: customerId
+                val savedOrderId = saved.orderId.takeIf { it > 0 } ?: orderId
+                val freshDetail = repository.customer(_state.value.settings, savedCustomerId, savedOrderId)
+                val freshSnapshot = repository.sync(_state.value.settings, _state.value.weekStart)
+                Triple(saved, freshDetail, freshSnapshot)
+            }.onSuccess { (saved, detail, snapshot) ->
+                _state.update {
+                    it.copy(
+                        customerDetail = detail,
+                        snapshot = snapshot,
+                        saving = false,
+                        online = true,
+                        error = null
+                    )
+                }
+                onResult(true, saved.message.ifBlank { "Änderungen gespeichert." })
+            }.onFailure { error ->
+                val message = error.message ?: "Änderungen konnten nicht gespeichert werden."
+                _state.update { it.copy(saving = false, online = false, error = message) }
+                onResult(false, message)
+            }
+        }
+    }
+
+    fun saveLocation(location: LocationDto, onResult: (Boolean, String) -> Unit) {
+        if (_state.value.saving) return
+        viewModelScope.launch {
+            _state.update { it.copy(saving = true, error = null) }
+            runCatching {
+                val saved = repository.saveLocation(_state.value.settings, location)
+                val snapshot = repository.sync(_state.value.settings, _state.value.weekStart)
+                saved to snapshot
+            }.onSuccess { (saved, snapshot) ->
+                _state.update { it.copy(snapshot = snapshot, saving = false, online = true, error = null) }
+                onResult(true, saved.message.ifBlank { "Location gespeichert." })
+            }.onFailure { error ->
+                val message = error.message ?: "Location konnte nicht gespeichert werden."
+                _state.update { it.copy(saving = false, online = false, error = message) }
+                onResult(false, message)
+            }
+        }
+    }
+
+    fun saveItem(item: ItemDto, onResult: (Boolean, String) -> Unit) {
+        if (_state.value.saving) return
+        viewModelScope.launch {
+            _state.update { it.copy(saving = true, error = null) }
+            runCatching {
+                val saved = repository.saveItem(_state.value.settings, item)
+                val snapshot = repository.sync(_state.value.settings, _state.value.weekStart)
+                saved to snapshot
+            }.onSuccess { (saved, snapshot) ->
+                _state.update { it.copy(snapshot = snapshot, saving = false, online = true, error = null) }
+                onResult(true, saved.message.ifBlank { "Artikel gespeichert." })
+            }.onFailure { error ->
+                val message = error.message ?: "Artikel konnte nicht gespeichert werden."
+                _state.update { it.copy(saving = false, online = false, error = message) }
+                onResult(false, message)
+            }
         }
     }
 
