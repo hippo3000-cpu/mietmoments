@@ -55,6 +55,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.mietmoments.verwaltung.ui.screens.CustomerDetailScreen
+import de.mietmoments.verwaltung.ui.screens.CustomerEditScreen
 import de.mietmoments.verwaltung.ui.screens.CustomersScreen
 import de.mietmoments.verwaltung.ui.screens.DashboardScreen
 import de.mietmoments.verwaltung.ui.screens.ItemsScreen
@@ -120,6 +121,7 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                         targetState = when (current) {
                             "settings" -> "Einstellungen"
                             "customer" -> "Kundendetails"
+                            "customer_edit" -> "Bearbeiten"
                             "week" -> "Wochenplan"
                             "customers" -> "Kunden"
                             "items" -> "Artikel"
@@ -233,9 +235,20 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                     nav.navigate("customer")
                 }
             }
-            composable(Route.Items.value) { ItemsScreen(state.snapshot?.items.orEmpty()) }
+            composable(Route.Items.value) {
+                ItemsScreen(
+                    itemsData = state.snapshot?.items.orEmpty(),
+                    saving = state.saving,
+                    onSaveItem = viewModel::saveItem
+                )
+            }
             composable(Route.Locations.value) {
-                LocationsScreen(state.snapshot?.locations.orEmpty()) { openNavigation(context, it) }
+                LocationsScreen(
+                    locations = state.snapshot?.locations.orEmpty(),
+                    saving = state.saving,
+                    onNavigate = { openNavigation(context, it) },
+                    onSaveLocation = viewModel::saveLocation
+                )
             }
             composable("customer") {
                 CustomerDetailScreen(
@@ -245,7 +258,17 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                     animations = state.settings.animationsEnabled,
                     onCall = { openUri(context, "tel:${Uri.encode(it)}") },
                     onMail = { openUri(context, "mailto:${Uri.encode(it)}") },
-                    onNavigate = { openNavigation(context, it) }
+                    onNavigate = { openNavigation(context, it) },
+                    onEdit = { nav.navigate("customer_edit") }
+                )
+            }
+            composable("customer_edit") {
+                CustomerEditScreen(
+                    detail = state.customerDetail,
+                    catalogItems = state.snapshot?.items.orEmpty(),
+                    saving = state.saving,
+                    onCancel = { nav.popBackStack() },
+                    onSave = viewModel::saveCustomerDetail
                 )
             }
             composable("settings") { SettingsScreen(state.settings, viewModel::updatePreferences) }
