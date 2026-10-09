@@ -77,6 +77,57 @@ class MobileApi {
         parsed to raw
     }
 
+    suspend fun saveBooking(settings: AppSettings, payload: SaveBookingRequest): SaveResponse = withContext(Dispatchers.IO) {
+        val body = json.encodeToString(SaveBookingRequest.serializer(), payload)
+        parseSaveResponse(postJson(settings, "mobile_api.php?action=save", body))
+    }
+
+    suspend fun saveLocation(settings: AppSettings, payload: SaveLocationRequest): SaveResponse = withContext(Dispatchers.IO) {
+        val body = json.encodeToString(SaveLocationRequest.serializer(), payload)
+        parseSaveResponse(postJson(settings, "mobile_api.php?action=save", body))
+    }
+
+    suspend fun saveItem(settings: AppSettings, payload: SaveItemRequest): SaveResponse = withContext(Dispatchers.IO) {
+        val body = json.encodeToString(SaveItemRequest.serializer(), payload)
+        parseSaveResponse(postJson(settings, "mobile_api.php?action=save", body))
+    }
+
+    private fun parseSaveResponse(raw: String): SaveResponse {
+        val parsed = runCatching { json.decodeFromString<SaveResponse>(raw) }.getOrElse {
+            error("Die Speicherantwort des Servers ist ungültig.")
+        }
+        if (!parsed.ok) error(parsed.message.ifBlank { "Änderungen konnten nicht gespeichert werden." })
+        return parsed
+    }
+
+    private fun postJson(settings: AppSettings, relativePath: String, body: String): String {
+        require(settings.serverUrl.startsWith("https://")) { "Nur HTTPS-Server sind erlaubt." }
+        val connection = (URL(settings.serverUrl + relativePath).openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 12_000
+            readTimeout = 30_000
+            doOutput = true
+            setRequestProperty("Accept", "application/json")
+            setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            setRequestProperty("X-MM-Mobile-Token", settings.token)
+            setRequestProperty("User-Agent", "MietMoments-Android/2")
+        }
+        return try {
+            OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { it.write(body) }
+            val code = connection.responseCode
+            val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+            val response = BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).use { it.readText() }
+            if (code !in 200..299) {
+                val message = runCatching { json.decodeFromString<SaveResponse>(response).message }.getOrNull()
+                error(message?.takeIf { it.isNotBlank() }
+                    ?: if (code == 401) "App-Verbindung ist nicht mehr gültig." else "Serverfehler $code")
+            }
+            response
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     private fun request(settings: AppSettings, relativePath: String): String {
         require(settings.serverUrl.startsWith("https://")) { "Nur HTTPS-Server sind erlaubt." }
         val connection = (URL(settings.serverUrl + relativePath).openConnection() as HttpURLConnection).apply {
