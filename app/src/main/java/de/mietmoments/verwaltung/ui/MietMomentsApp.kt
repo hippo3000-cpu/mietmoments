@@ -246,7 +246,8 @@ private fun MainApp(state: AppUiState, viewModel: AppViewModel) {
                 ItemsScreen(
                     itemsData = state.snapshot?.items.orEmpty(),
                     saving = state.saving,
-                    onSaveItem = viewModel::saveItem
+                    onSaveItem = viewModel::saveItem,
+                    onArchiveItem = viewModel::archiveItem
                 )
             }
             composable(Route.Locations.value) {
