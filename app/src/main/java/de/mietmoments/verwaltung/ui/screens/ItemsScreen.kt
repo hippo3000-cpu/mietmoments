@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Inventory2
 import androidx.compose.material.icons.rounded.Search
@@ -43,7 +45,8 @@ import java.util.Locale
 fun ItemsScreen(
     itemsData: List<ItemDto>,
     saving: Boolean,
-    onSaveItem: (ItemDto, (Boolean, String) -> Unit) -> Unit
+    onSaveItem: (ItemDto, (Boolean, String) -> Unit) -> Unit,
+    onArchiveItem: (ItemDto, (Boolean, String) -> Unit) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     var editing by remember { mutableStateOf<ItemDto?>(null) }
@@ -63,7 +66,12 @@ fun ItemsScreen(
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Artikel & Lager", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("Artikel & Lager", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+                    IconButton(onClick = { editing = ItemDto() }, enabled = !saving) {
+                        Icon(Icons.Rounded.Add, "Artikel hinzufügen", tint = MaterialTheme.colorScheme.primary)
+                    }
+                }
                 Text(
                     "${itemsData.size} aktive Artikel · Preis, Variante und Lagerort auf einen Blick",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -152,6 +160,12 @@ fun ItemsScreen(
                     callback(ok, message)
                     if (ok) editing = null
                 }
+            },
+            onArchive = { selected, callback ->
+                onArchiveItem(selected) { ok, message ->
+                    callback(ok, message)
+                    if (ok) editing = null
+                }
             }
         )
     }
@@ -162,7 +176,8 @@ private fun EditItemDialog(
     item: ItemDto,
     saving: Boolean,
     onDismiss: () -> Unit,
-    onSave: (ItemDto, (Boolean, String) -> Unit) -> Unit
+    onSave: (ItemDto, (Boolean, String) -> Unit) -> Unit,
+    onArchive: (ItemDto, (Boolean, String) -> Unit) -> Unit
 ) {
     var name by remember(item) { mutableStateOf(item.name) }
     var sku by remember(item) { mutableStateOf(item.sku) }
@@ -174,11 +189,12 @@ private fun EditItemDialog(
     var deposit by remember(item) { mutableStateOf(decimal(item.deposit)) }
     var storage by remember(item) { mutableStateOf(item.storageLocation) }
     var stock by remember(item) { mutableStateOf(item.stock?.let(::decimal).orEmpty()) }
-    var message by remember { mutableStateOf("") }
+    var message by remember(item) { mutableStateOf("") }
+    var confirmArchive by remember(item) { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Artikel bearbeiten") },
+        title = { Text(if (item.id == 0) "Artikel hinzufügen" else "Artikel bearbeiten") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SmallEditField("Name", name) { name = it }
@@ -199,6 +215,7 @@ private fun EditItemDialog(
                     SmallEditField("Lagerort", storage, Modifier.weight(1f)) { storage = it }
                     SmallEditField("Bestand", stock, Modifier.weight(1f)) { stock = it }
                 }
+                Text("Aktueller Preis: ${money(parseDecimal(unitPrice))}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
                 if (message.isNotBlank()) Text(message, style = MaterialTheme.typography.bodySmall)
             }
         },
@@ -222,8 +239,32 @@ private fun EditItemDialog(
                 }
             ) { Text(if (saving) "Speichert …" else "Speichern") }
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !saving) { Text("Abbrechen") } }
+        dismissButton = {
+            Row {
+                if (item.id > 0) TextButton(onClick = { confirmArchive = true }, enabled = !saving) {
+                    Icon(Icons.Rounded.Delete, "Artikel entfernen")
+                    Text(" Entfernen")
+                }
+                TextButton(onClick = onDismiss, enabled = !saving) { Text("Abbrechen") }
+            }
+        }
     )
+    if (confirmArchive) {
+        AlertDialog(
+            onDismissRequest = { if (!saving) confirmArchive = false },
+            title = { Text("Artikel entfernen?") },
+            text = { Text("Der Artikel verschwindet aus dem Katalog. Bereits gebuchte Positionen und ihre Preise bleiben bestehen.") },
+            confirmButton = {
+                TextButton(enabled = !saving, onClick = {
+                    onArchive(item) { ok, result ->
+                        message = result
+                        if (ok) confirmArchive = false
+                    }
+                }) { Text("Artikel archivieren") }
+            },
+            dismissButton = { TextButton(onClick = { confirmArchive = false }, enabled = !saving) { Text("Abbrechen") } }
+        )
+    }
 }
 
 @Composable

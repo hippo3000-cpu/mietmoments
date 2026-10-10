@@ -13,8 +13,8 @@ android {
         applicationId = "de.mietmoments.verwaltung"
         minSdk = 26
         targetSdk = 36
-        versionCode = 213
-        versionName = "2.3.0"
+        versionCode = 214
+        versionName = "2.3.1"
 
         vectorDrawables.useSupportLibrary = true
     }

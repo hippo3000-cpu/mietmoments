@@ -81,6 +81,17 @@ class MietMomentsRepository(context: Context) {
             )
         )
 
+    suspend fun archiveItem(settings: AppSettings, item: ItemDto): SaveResponse =
+        api.saveItem(
+            settings,
+            SaveItemRequest(
+                operationUuid = UUID.randomUUID().toString(),
+                operationType = "item_archive",
+                itemId = item.id,
+                item = item
+            )
+        )
+
     companion object {
         fun currentWeekStart(today: LocalDate = LocalDate.now()): LocalDate =
             today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))

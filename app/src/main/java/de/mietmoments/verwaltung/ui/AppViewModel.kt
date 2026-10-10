@@ -197,17 +197,22 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun saveItem(item: ItemDto, onResult: (Boolean, String) -> Unit) {
+    fun saveItem(item: ItemDto, onResult: (Boolean, String) -> Unit) = mutateItem(item, false, onResult)
+
+    fun archiveItem(item: ItemDto, onResult: (Boolean, String) -> Unit) = mutateItem(item, true, onResult)
+
+    private fun mutateItem(item: ItemDto, archive: Boolean, onResult: (Boolean, String) -> Unit) {
         if (_state.value.saving) return
         viewModelScope.launch {
             _state.update { it.copy(saving = true, error = null) }
             runCatching {
-                val saved = repository.saveItem(_state.value.settings, item)
+                val saved = if (archive) repository.archiveItem(_state.value.settings, item)
+                    else repository.saveItem(_state.value.settings, item)
                 val snapshot = repository.sync(_state.value.settings, _state.value.weekStart)
                 saved to snapshot
             }.onSuccess { (saved, snapshot) ->
                 _state.update { it.copy(snapshot = snapshot, saving = false, online = true, error = null) }
-                onResult(true, saved.message.ifBlank { "Artikel gespeichert." })
+                onResult(true, saved.message.ifBlank { if (archive) "Artikel archiviert." else "Artikel gespeichert." })
             }.onFailure { error ->
                 val message = error.message ?: "Artikel konnte nicht gespeichert werden."
                 _state.update { it.copy(saving = false, online = false, error = message) }

@@ -184,7 +184,12 @@ fun CustomerDetailScreen(
                             }
                             if (p.notes.isNotBlank()) Text(p.notes, style = MaterialTheme.typography.bodySmall)
                         }
-                        Text(money(p.lineTotal), fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(onClick = onEdit) {
+                                Icon(Icons.Rounded.Edit, "Position bearbeiten", tint = MaterialTheme.colorScheme.primary)
+                            }
+                            Text(money(p.lineTotal), fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
+                        }
                     }
                 }
             }
