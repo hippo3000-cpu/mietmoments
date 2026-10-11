@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "status": "specification_only_no_glb_yet",
+  "character": "milo",
+  "species": "baby_hippopotamus",
+  "glb": "assets/milo/milo_v1.glb",
+  "axes": {
+    "up": "+Y",
+    "forward": "+Z",
+    "right": "+X"
+  },
+  "requiredAnimations": [
+    "idle_breathe",
+    "blink",
+    "look_around",
+    "sniff_once",
+    "ear_wiggle",
+    "walk_loop",
+    "hop_once",
+    "sit_down",
+    "sit_idle",
+    "lie_down",
+    "sleep_loop",
+    "wake_up",
+    "happy_once",
+    "sad_idle",
+    "wave_once"
+  ],
+  "optionalAnimations": [
+    "trot_loop",
+    "turn_in_place"
+  ],
+  "morphTargets": [
+    "blink_L",
+    "blink_R",
+    "smile",
+    "sad",
+    "mouth_open",
+    "mouth_pout",
+    "sniff",
+    "cheek_puff",
+    "brow_up_L",
+    "brow_up_R",
+    "brow_sad",
+    "nostril_flare"
+  ],
+  "events": {
+    "APP_OPEN": [
+      "look_around",
+      "idle_breathe"
+    ],
+    "TAP_MILO": [
+      "happy_once",
+      "idle_breathe"
+    ],
+    "SYNC_START": [
+      "walk_loop"
+    ],
+    "SYNC_SUCCESS": [
+      "happy_once",
+      "idle_breathe"
+    ],
+    "SYNC_ERROR": [
+      "sad_idle",
+      "idle_breathe"
+    ],
+    "OFFLINE": [
+      "look_around",
+      "idle_breathe"
+    ],
+    "MANY_APPOINTMENTS": [
+      "hop_once",
+      "idle_breathe"
+    ],
+    "INACTIVITY": [
+      "lie_down",
+      "sleep_loop"
+    ],
+    "WAKE": [
+      "wake_up",
+      "idle_breathe"
+    ],
+    "ANIMATIONS_OFF": [],
+    "MILO_OFF": []
+  },
+  "gesture": {
+    "tap": "play_reaction",
+    "horizontalDrag": "rotate_actual_mesh_yaw_360",
+    "scrollOutside": "pass_through"
+  },
+  "acceptance": {
+    "sameMeshEveryAngle": true,
+    "spriteSequencesForbidden": true,
+    "userVisualApprovalBeforeRigging": true,
+    "androidDeviceTestRequired": true
+  }
+}
